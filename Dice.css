@@ -10,7 +10,7 @@ img {
 
 #log {
     max-width: 250px;
-    max-height: 8em;
+    height: 15em;
     overflow-y: auto;
 }
 

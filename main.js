@@ -8,6 +8,13 @@
 
 //room+appid for a share link
 
+function logRoll(player, roll) {
+    let log = document.getElementById("log");
+    let logentry = log.appendChild(document.createElement("div"));
+    logentry.innerHTML = (player ? player : "Player ?") + " rolled " + roll;
+    log.scrollTop = log.scrollHeight;
+}
+
 function diceRoll() {
 
     let roll = Math.floor(100 * Math.random());
@@ -19,12 +26,8 @@ function diceRoll() {
           value: roll
         }));
     }
-
-    let log = document.getElementById("log");
-    let logentry = log.appendChild(document.createElement("div"));
-    logentry.innerHTML = "Player ? rolled " + roll;
-    log.scrollTop = log.scrollHeight;
-
+   
+    logRoll("I", roll);
 }
 
 
@@ -136,7 +139,7 @@ let createPeerConnection = async (MemberId) => {
           const data = JSON.parse(event.data);
       
           if (data.type === 'roll') {
-            console.log(`Received Random Number: ${data.value}`);
+            logRoll(null, data.value);
           }
         };
     };
