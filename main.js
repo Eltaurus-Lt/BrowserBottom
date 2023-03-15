@@ -21,7 +21,7 @@ let queryString = window.location.search;
 let urlParams = new URLSearchParams(queryString);
 let roomId = urlParams.get('room');
 if (!roomId || !APP_ID) {
-    window.location = entry.html
+    window.location = "index.html";
 }
 
 let token = null;
