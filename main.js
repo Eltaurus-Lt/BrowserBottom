@@ -1,13 +1,24 @@
-//understend execution order
+//understand execution order
 //rtc roll dice
+//player names
+
 //separate agora.js
 //async refactor + ...
-//vsc <-> git -> pages
+//audio + controls + playerlist/leave
+
+//room+appid for a share link
 
 function diceRoll() {
 
     let roll = Math.floor(100 * Math.random());
     //console.log("dice rolled");
+
+    if (peerConnection && dataChannel) {
+        dataChannel.send(JSON.stringify({
+          type: 'roll',
+          value: roll
+        }));
+    }
 
     let log = document.getElementById("log");
     let logentry = log.appendChild(document.createElement("div"));
@@ -15,6 +26,8 @@ function diceRoll() {
     log.scrollTop = log.scrollHeight;
 
 }
+
+
 
 let APP_ID = localStorage.getItem('BB-AppID');
 let queryString = window.location.search;
@@ -32,6 +45,7 @@ let channel;
 let localStream;
 let remoteStream;
 let peerConnection;
+let dataChannel;
 
 const servers = {
     iceServers:[
@@ -65,6 +79,10 @@ let handleUserJoined = async (MemberId) => {
     createOffer(MemberId);
 }
 
+let handleUserLeft = (MemberId) => {
+
+}
+
 let init = async () => {
     client = await AgoraRTM.createInstance(APP_ID);
     await client.login({uid, token});
@@ -72,6 +90,7 @@ let init = async () => {
     await channel.join();
 
     channel.on('MemberJoined', handleUserJoined);
+    channel.on('MemberLeft', handleUserLeft);
     client.on('MessageFromPeer', handleMessageFromPeer);
 
 
@@ -106,6 +125,21 @@ let createPeerConnection = async (MemberId) => {
             client.sendMessageToPeer({text: JSON.stringify({'type': "candidate", 'candidate': event.candidate})}, MemberId);
         }
     }
+
+    //data
+    dataChannel = peerConnection.createDataChannel('GameData');
+ 
+    peerConnection.ondatachannel = async (event) => {
+        const dataChannel = event.channel;
+      
+        dataChannel.onmessage = event => {
+          const data = JSON.parse(event.data);
+      
+          if (data.type === 'roll') {
+            console.log(`Received Random Number: ${data.value}`);
+          }
+        };
+    };
 }
 
 let createOffer = async (MemberId) => {
@@ -133,5 +167,11 @@ let addAnswer = async (answer) => {
         peerConnection.setRemoteDescription(answer);
     }
 }
+
+let leaveChannel = async () => {
+    await channel.leave();
+    await client.logout();
+}
+window.addEventListener('beforeunload', leaveChannel);
 
 init();
