@@ -1,7 +1,6 @@
 body > * {
     display: block;
     margin: 1em auto;
-  //  font-size: 2em;
 }
 
 img {
@@ -9,6 +8,7 @@ img {
 }
 
 #log {
+    /*use flexbox;*/
     max-width: 250px;
     height: 15em;
     overflow-y: auto;
