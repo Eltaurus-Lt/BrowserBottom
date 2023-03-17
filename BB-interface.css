@@ -59,3 +59,11 @@ button {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+/*players list*/
+#playersList {
+    position: absolute;
+    left: 1em;
+    bottom: 0;
+    list-style: none;
+}

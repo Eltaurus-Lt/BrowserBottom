@@ -5,6 +5,14 @@
 //test room invite link
 //?reenter as new/old user
 
+/*
+custom events: 
+    playerJoined.detail.{PlayerId}
+
+trigger: 
+triggerEvent(event, data_object)
+*/
+
 
 //Game Setting
 let CurrentPlayer = localStorage.getItem('BB-Name');
@@ -19,8 +27,8 @@ if (!roomId || !CurrentPlayer) {
     window.location = "index.html";
 }
 
-function callEvent(event, data) {
-    document.dispatchEvent(
+function triggerEvent(event, data) {
+    window.dispatchEvent(
         new CustomEvent(event, {detail: data})
     );
 }
@@ -37,35 +45,31 @@ let uid = CurrentPlayer;
 let client;
 let channel; 
 
-async function init() {
+async function initConnection() {
     client = await AgoraRTM.createInstance(APP_ID);
     await client.login({uid, token});
     channel = client.createChannel(roomId);
     await channel.join();
 
-    channel.on('MemberJoined', handleUserJoined);
-    channel.on('MemberLeft', handleUserLeft);
-    client.on('MessageFromPeer', handleAgoraMessage);
+    channel.on('MemberJoined', AgoraUserJoined);
+    channel.on('MemberLeft', AgoraUserLeft);
+    client.on('MessageFromPeer', AgoraMessage);
 };
-init();
 
-async function leaveChannel() {
-    await channel.leave();
-    await client.logout();
-}
-window.addEventListener('beforeunload', leaveChannel);
+window.addEventListener('beforeunload', async ()=> {await channel.leave(); await client.logout();});
 
 
-async function handleUserJoined(PlayerId) {
-    console.log(PlayerId, "joined the party \\o/");
+async function AgoraUserJoined(PlayerId) {
+    console.log('PlayerId:', PlayerId);
+    triggerEvent('playerJoined', {PlayerId: PlayerId});
     createOffer(PlayerId);
 }
 
-function handleUserLeft(PlayerId) {
+function AgoraUserLeft(PlayerId) {
 
 }
 
-async function handleAgoraMessage(message, PlayerId) {
+async function AgoraMessage(message, PlayerId) {
     message = JSON.parse(message.text);
 
     if (message.type === 'offer') {
@@ -173,6 +177,14 @@ function receiveGameData(data) {
 
 
 //Game
+
+window.addEventListener('playerJoined', (event) => 
+    {
+        console.log(event.detail.PlayerId, "joined the party \\o/");    
+    }
+);
+//console.log('playerJoined event:', typeof window['playerJoined']);
+
 function logRoll(player, roll) {
     let log = document.getElementById("log");
     let logentry = log.appendChild(document.createElement("div"));
@@ -186,7 +198,7 @@ function diceRoll() {
     logRoll(CurrentPlayer, roll);
 }
 
-
+initConnection();
 
 
 

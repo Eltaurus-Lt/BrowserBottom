@@ -21,14 +21,15 @@ img {
 
 
 /* videos */
-.video-player {
-    background-color: black;
-    width: 35%;
+
+#video2 {
+    background-color: black;    
+    width: calc(50% - 2em);
     max-width: 480px;
     position: absolute;
-    top: 1em;
-    margin: 0;
-}
+    padding: 0 !important;
 
-#video1 {left: 1em;}
-#video2 {right: 1em;}
+    margin: 1em;
+    right: 0;
+    bottom: 0;
+}

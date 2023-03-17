@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>BrowserBottom</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/twitter/twemoji/master/assets/svg/1f3b2.svg">
         <link rel="stylesheet" type="text/css" media="screen" href="BB-interface.css">
         <link rel="stylesheet" type="text/css" media="screen" href="Dice.css">
     </head>
@@ -12,14 +13,14 @@
         <img id="diceimg" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Two_red_dice_01.svg">
         <button id="diceroll" onclick="diceRoll()">Roll the Dice</button>
         <div id="log">
-            <div>Player 1 rolled 35</div>
-            <div>Player 2 rolled 56</div>
-            <div>Player 1 rolled 47</div>
         </div>
 
-        <video class="video-player" id="video1" autoplay playsinline></video>
-        <video class="video-player" id="video2" autoplay playsinline></video>
+        <video class="bb-window" id="video2" autoplay playsinline></video>
         
+        <ul id="playersList" class="bb-window">
+            <li>Player 1</li>
+            <li>Player 2</li>
+        </ul>
 
 
         <script src="agora-rtm-sdk-1.5.1.js"></script>
