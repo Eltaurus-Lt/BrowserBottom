@@ -1,12 +1,12 @@
-//Refactor + split | understand execution order
-//audio + controls + playerlist/leave
+//Refactor + split
+//audio + controls + playerlist
 
 //player colors
 //test room invite link
 //?reenter as new/old user
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//Game login
+//parse login + custom events API
 /*
 defines:
     CurrentPlayer
@@ -45,8 +45,6 @@ requires:
     CurrentPlayer
     roomId
 
-    triggerEvent
-
 defines:
     channel
     client
@@ -83,10 +81,6 @@ async function initConnection() {
     channel.on('MemberLeft', AgoraUserLeft);
     client.on('MessageFromPeer', AgoraMessage);
 
-    // signalToPeer = (data, PlayerId) => {
-    //     console.log('message triggered');
-    //     client.sendMessageToPeer(data, PlayerId);
-    // };
 };
 
 async function AgoraUserJoined(PlayerId) {
@@ -111,9 +105,14 @@ window.addEventListener('beforeunload', async ()=> {await channel.leave(); await
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Agora2RTC
 /*
-uses:
-    client
-    
+triggers:
+    createAnswer.{offer, toPlayer}
+    addAnswer.{answer, fromPlayer}
+    icecandidate.{candidate}
+    (receiveGameData)
+
+catches: 
+    signalFromPeer    
 
 */
 
@@ -125,17 +124,15 @@ catchEvent('signalFromPeer', data => {
     }
     
     if (data.type === 'answer') {
-        addAnswer(data.content);
+        triggerEvent('addAnswer', {'answer': data.content, 'fromPlayer': data.from});
     }
     
     if (data.type === 'candidate') {
-        if (peerConnection) {
-            peerConnection.addIceCandidate(data.content);
-        }
+        triggerEvent('icecandidate', {'candidate': data.content})
     }
 
-    if (data.type === 'message') {
-
+    if (data.type === 'message') { //untested
+        triggerEvent('receiveGameData', data.content);
     }
     //convert to switch 
 });
@@ -154,6 +151,15 @@ defines:
     localStream
     remoteStream
     dataChannel
+
+catches:
+    playerJoined
+    createAnswer
+    addAnswer
+    icecandidate
+
+triggers:
+    receiveGameData
 */
 
 
@@ -195,7 +201,7 @@ async function createPeerConnection(toPlayer) {
     //data
     peerConnection.ondatachannel = async (event) => {
         event.channel.onmessage = message => {
-            triggerEvent('receiveGameData', JSON.parse(message.data));
+            triggerEvent('RTCmessage', JSON.parse(message.data));
         };
     };
 
@@ -218,6 +224,18 @@ catchEvent('createAnswer', async data => {
     await peerConnection.setLocalDescription(answer);
 
     signalToPeer({ 'type': "answer", 'content': answer }, data.toPlayer);
+});
+
+catchEvent('addAnswer', data => {
+    if (!peerConnection.currentRemoteDescription) {
+        peerConnection.setRemoteDescription(data.answer);
+    }
+});
+
+catchEvent('icecandidate', data => {
+    if (peerConnection) {
+        peerConnection.addIceCandidate(data.candidate);
+    }
 });
 
 catchEvent('playerJoined', async data => {
@@ -244,11 +262,17 @@ function sendGameData(type, value) {
     }
 }
 
-catchEvent('receiveGameData', data => {
-    if (data.type === 'roll') {
-        logRoll(data.player, data.value);
-    }        
+catchEvent('RTCmessage', data => {
+    if (data.type === 'gameState') {
+        triggerEvent('receiveGameState', data);
+    } else if (data.type === 'chatMessage') {
+        triggerEvent('receiveChatMessage', data);
+    } else {
+        triggerEvent('receiveGameData', data);
+    }
 });
+
+
 
 
 
@@ -285,6 +309,12 @@ catchEvent('playerLeft', data => {
 });
 //console.log('playerJoined event:', typeof window['playerJoined']);
 
+catchEvent('receiveGameData', data => {
+    if (data.type === 'roll') {
+        logRoll(data.player, data.value);
+    }        
+});
+
 //Gameplay functions
 
 function logRoll(player, roll) {
@@ -302,34 +332,4 @@ function diceRoll() {
 
 addPlayer(CurrentPlayer);
 initConnection();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-async function addAnswer(answer) {
-    if (!peerConnection.currentRemoteDescription) {
-        peerConnection.setRemoteDescription(answer);
-    }
-}
-
-
-
 
