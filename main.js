@@ -7,10 +7,11 @@
 
 /*
 custom events: 
-    playerJoined.detail.{PlayerId}
+    playerJoined data.{PlayerId}
 
-trigger: 
+API: 
 triggerEvent(event, data_object)
+catchEvent(event, function(data))
 */
 
 
@@ -31,6 +32,9 @@ function triggerEvent(event, data) {
     window.dispatchEvent(
         new CustomEvent(event, {detail: data})
     );
+}
+function catchEvent(event, func) {
+    window.addEventListener(event, (event) => {func(event.detail)});
 }
 
 //AGORA login
@@ -60,13 +64,13 @@ window.addEventListener('beforeunload', async ()=> {await channel.leave(); await
 
 
 async function AgoraUserJoined(PlayerId) {
-    console.log('PlayerId:', PlayerId);
+ //   console.log('PlayerId:', PlayerId);
     triggerEvent('playerJoined', {PlayerId: PlayerId});
     createOffer(PlayerId);
 }
 
 function AgoraUserLeft(PlayerId) {
-
+    triggerEvent('playerLeft', {PlayerId: PlayerId});
 }
 
 async function AgoraMessage(message, PlayerId) {
@@ -178,12 +182,33 @@ function receiveGameData(data) {
 
 //Game
 
-window.addEventListener('playerJoined', (event) => 
-    {
-        console.log(event.detail.PlayerId, "joined the party \\o/");    
-    }
-);
+//interface defs
+let playerList = document.getElementById("playersList");
+
+function addPlayer(PlayerId) {
+    let newplayer = playerList.appendChild(document.createElement("li"));
+    newplayer.innerHTML = PlayerId;
+}
+
+function removePlayer(PlayerId) {
+    const players = Array.from(playerList.getElementsByTagName('li'));
+    const playerToRemove = players.find(player => player.innerHTML.includes(PlayerId));
+    playerList.removeChild(playerToRemove);
+}
+
+//events API
+
+catchEvent('playerJoined', data => {
+    //console.log(data.PlayerId, "joined the party \\o/");    
+    addPlayer(data.PlayerId);
+});
+catchEvent('playerLeft', data => {
+    console.log(data.PlayerId, "went home =(");    
+    removePlayer(data.PlayerId);
+});
 //console.log('playerJoined event:', typeof window['playerJoined']);
+
+//Gameplay functions
 
 function logRoll(player, roll) {
     let log = document.getElementById("log");
@@ -198,6 +223,7 @@ function diceRoll() {
     logRoll(CurrentPlayer, roll);
 }
 
+addPlayer(CurrentPlayer);
 initConnection();
 
 
