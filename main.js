@@ -51,13 +51,13 @@ defines:
     channel
     client
     
-    messageToPeers(data, PlayerId)
+    signalToPeer(data, PlayerId)
     initConnection()
 
 triggers:
     playerJoined data.{PlayerId}
     playerLeft data.{PlayerId}
-    messageFromPeer data.{from, type, content}
+    signalFromPeer data.{from, type, content}
 
     leave+logout before unload
 */
@@ -71,7 +71,7 @@ let token = null;
 let uid = CurrentPlayer;
 let client;
 let channel; 
-//let messageToPeers;
+//let signalToPeer;
 
 async function initConnection() {
     client = await AgoraRTM.createInstance(APP_ID);
@@ -83,7 +83,7 @@ async function initConnection() {
     channel.on('MemberLeft', AgoraUserLeft);
     client.on('MessageFromPeer', AgoraMessage);
 
-    // messageToPeers = (data, PlayerId) => {
+    // signalToPeer = (data, PlayerId) => {
     //     console.log('message triggered');
     //     client.sendMessageToPeer(data, PlayerId);
     // };
@@ -98,15 +98,15 @@ function AgoraUserLeft(PlayerId) {
     triggerEvent('playerLeft', {PlayerId: PlayerId});
 }
 
-async function AgoraMessage(message, PlayerId) {
-    triggerEvent('messageFromPeer', Object.assign({}, JSON.parse(message.text), {from: PlayerId}));
+function signalToPeer(data, to) {
+    client.sendMessageToPeer({text: JSON.stringify(data)}, to);
+}
+
+async function AgoraMessage(message, fromPlayer) {
+    triggerEvent('signalFromPeer', Object.assign({}, JSON.parse(message.text), {from: fromPlayer}));
 }
 
 window.addEventListener('beforeunload', async ()=> {await channel.leave(); await client.logout();});
-
-function messageToPeers(data, PlayerId) {
-    client.sendMessageToPeer(data, PlayerId);
-}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Agora2RTC
@@ -117,9 +117,11 @@ uses:
 
 */
 
-catchEvent('messageFromPeer', data => {
+
+
+catchEvent('signalFromPeer', data => {
     if (data.type === 'offer') {
-        createAnswer(data.from, data.content);
+        triggerEvent('createAnswer', {'offer': data.content, 'toPlayer': data.from});
     }
     
     if (data.type === 'answer') {
@@ -131,7 +133,11 @@ catchEvent('messageFromPeer', data => {
             peerConnection.addIceCandidate(data.content);
         }
     }
-    //convert to switch + add else to use for game data communication
+
+    if (data.type === 'message') {
+
+    }
+    //convert to switch 
 });
 
 
@@ -140,8 +146,8 @@ catchEvent('messageFromPeer', data => {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //WebRTC
 /*
-uses: 
-    messageToPeers
+requres: 
+    signalToPeer
 
 defines: 
     peerConnection
@@ -166,7 +172,7 @@ async function enableLocalStream() {
     });
 }
 
-async function createPeerConnection(PlayerId) {
+async function createPeerConnection(toPlayer) {
     peerConnection = new RTCPeerConnection(servers);
 
     //media
@@ -182,7 +188,7 @@ async function createPeerConnection(PlayerId) {
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
             //console.log("New ICE candidate:", event.candidate);
-            messageToPeers({ text: JSON.stringify({ 'type': "candidate", 'content': event.candidate }) }, PlayerId);
+            signalToPeer({'type': "candidate", 'content': event.candidate}, toPlayer);
         }
     };
 
@@ -196,16 +202,26 @@ async function createPeerConnection(PlayerId) {
     dataChannel = peerConnection.createDataChannel('GameData');
 }
 
-async function createOffer(PlayerId) {
-    await createPeerConnection(PlayerId);
+async function createOffer(toPlayer) {
 
     let offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
-    messageToPeers({ text: JSON.stringify({ 'type': "offer", 'content': offer }) }, PlayerId);
+    signalToPeer({'type': "offer", 'content': offer }, toPlayer);
 }
 
-catchEvent('playerJoined', data => {
+catchEvent('createAnswer', async data => {
+    await createPeerConnection(data.toPlayer);
+    await peerConnection.setRemoteDescription(data.offer);
+
+    let answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+
+    signalToPeer({ 'type': "answer", 'content': answer }, data.toPlayer);
+});
+
+catchEvent('playerJoined', async data => {
+    await createPeerConnection(data.PlayerId);
     createOffer(data.PlayerId);
 });
 
@@ -306,16 +322,7 @@ initConnection();
 
 
 
-async function createAnswer(PlayerId, offer) {
-    await createPeerConnection(PlayerId);
 
-    await peerConnection.setRemoteDescription(offer);
-
-    let answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-
-    client.sendMessageToPeer({ text: JSON.stringify({ 'type': "answer", 'content': answer }) }, PlayerId);
-}
 
 async function addAnswer(answer) {
     if (!peerConnection.currentRemoteDescription) {
