@@ -21,15 +21,59 @@ img {
 
 
 /* videos */
-
-#video2 {
-    background-color: black;    
-    width: calc(50% - 2em);
-    max-width: 480px;
+#mediaNcontrols {
     position: absolute;
-    padding: 0 !important;
-
     margin: 1em;
     right: 0;
     bottom: 0;
+
+    width: calc(40% - 2em);
+    max-width: 480px;
+    
+}
+
+#video2 {
+    background-color: black;    
+    width: 100%;
+    min-width: 120px;
+    aspect-ratio: 16/9;
+    padding: 0 !important;
+    visibility: hidden;
+
+ 
+}
+
+#media_controls {
+    position: relative;
+    right: 50%;
+    transform: translateX(50%);
+
+    
+    display: flex;
+    gap: .5em;
+ //   align-items: center;
+    justify-content: center;
+}
+
+#media_controls button{
+    margin: 0;
+    border: none;
+    width: 3em;
+    border-radius: 50%;
+    cursor: pointer;
+
+    flex: 0 1 auto;
+    min-width: 0.5em;
+    max-width: 100%;
+    object-fit: contain;
+    aspect-ratio: 1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#media_controls button img {
+    width: 60%;
+    filter: invert();
 }

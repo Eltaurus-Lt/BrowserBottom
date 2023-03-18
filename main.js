@@ -14,8 +14,8 @@ triggerEvent(event, data_object)
 catchEvent(event, function(data))
 */
 
-
-//Game Setting
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//Game Basics
 let CurrentPlayer = localStorage.getItem('BB-Name');
 
 let queryString = window.location.search;
@@ -37,6 +37,7 @@ function catchEvent(event, func) {
     window.addEventListener(event, (event) => {func(event.detail)});
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
 //AGORA login
 let APP_ID = localStorage.getItem('BB-AppID');
 
@@ -66,7 +67,6 @@ window.addEventListener('beforeunload', async ()=> {await channel.leave(); await
 async function AgoraUserJoined(PlayerId) {
  //   console.log('PlayerId:', PlayerId);
     triggerEvent('playerJoined', {PlayerId: PlayerId});
-    createOffer(PlayerId);
 }
 
 function AgoraUserLeft(PlayerId) {
@@ -92,7 +92,7 @@ async function AgoraMessage(message, PlayerId) {
 
 }
 
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
 //Agora2RTC
 const servers = {iceServers:[{ urls:["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]}]};
 
@@ -101,10 +101,7 @@ let localStream;
 let remoteStream;
 let dataChannel;
 
-async function createMediaStreams() {
-    remoteStream = new MediaStream();
-    document.getElementById('video2').srcObject = remoteStream;
-
+async function enableLocalStream() {
     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     localStream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, localStream);
@@ -114,8 +111,10 @@ async function createMediaStreams() {
 async function createPeerConnection(PlayerId) {
     peerConnection = new RTCPeerConnection(servers);
 
-    await createMediaStreams();
+    remoteStream = new MediaStream();
+    document.getElementById('video2').srcObject = remoteStream;
 
+    //await enableLocalStream();
 
     peerConnection.ontrack = (event) => {
         event.streams[0].getTracks().forEach((track) => {
@@ -155,8 +154,11 @@ async function createOffer(PlayerId) {
     client.sendMessageToPeer({ text: JSON.stringify({ 'type': "offer", 'offer': offer }) }, PlayerId);
 }
 
+catchEvent('playerJoined', data => {
+    createOffer(data.PlayerId);
+});
 
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
 //RTC-Client
 function sendGameState() {
 
@@ -179,7 +181,7 @@ function receiveGameData(data) {
 
 }
 
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
 //Game
 
 //interface defs
@@ -193,7 +195,9 @@ function addPlayer(PlayerId) {
 function removePlayer(PlayerId) {
     const players = Array.from(playerList.getElementsByTagName('li'));
     const playerToRemove = players.find(player => player.innerHTML.includes(PlayerId));
-    playerList.removeChild(playerToRemove);
+    if (playerToRemove) {
+        playerList.removeChild(playerToRemove);
+    }
 }
 
 //events API
