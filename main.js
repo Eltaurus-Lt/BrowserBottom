@@ -5,17 +5,16 @@
 //test room invite link
 //?reenter as new/old user
 
-/*
-custom events: 
-    playerJoined data.{PlayerId}
-
-API: 
-triggerEvent(event, data_object)
-catchEvent(event, function(data))
-*/
-
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//Game Basics
+//Game login
+/*
+defines:
+    CurrentPlayer
+    roomId
+    
+    triggerEvent(event, data_object)
+    catchEvent(event, function(data))
+*/
 let CurrentPlayer = localStorage.getItem('BB-Name');
 
 let queryString = window.location.search;
@@ -34,11 +33,34 @@ function triggerEvent(event, data) {
     );
 }
 function catchEvent(event, func) {
-    window.addEventListener(event, (event) => {func(event.detail)});
+    window.addEventListener(event, 
+        (event) => {func(event.detail)}
+    );
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //AGORA login
+/*
+requires:
+    CurrentPlayer
+    roomId
+
+    triggerEvent
+
+defines:
+    channel
+    client
+    
+    messageToPeers(data, PlayerId)
+    initConnection()
+
+triggers:
+    playerJoined data.{PlayerId}
+    playerLeft data.{PlayerId}
+    messageFromPeer data.{from, type, content}
+
+    leave+logout before unload
+*/
 let APP_ID = localStorage.getItem('BB-AppID');
 
 if (!APP_ID) {
@@ -49,6 +71,7 @@ let token = null;
 let uid = CurrentPlayer;
 let client;
 let channel; 
+//let messageToPeers;
 
 async function initConnection() {
     client = await AgoraRTM.createInstance(APP_ID);
@@ -59,10 +82,12 @@ async function initConnection() {
     channel.on('MemberJoined', AgoraUserJoined);
     channel.on('MemberLeft', AgoraUserLeft);
     client.on('MessageFromPeer', AgoraMessage);
+
+    // messageToPeers = (data, PlayerId) => {
+    //     console.log('message triggered');
+    //     client.sendMessageToPeer(data, PlayerId);
+    // };
 };
-
-window.addEventListener('beforeunload', async ()=> {await channel.leave(); await client.logout();});
-
 
 async function AgoraUserJoined(PlayerId) {
  //   console.log('PlayerId:', PlayerId);
@@ -74,26 +99,59 @@ function AgoraUserLeft(PlayerId) {
 }
 
 async function AgoraMessage(message, PlayerId) {
-    message = JSON.parse(message.text);
+    triggerEvent('messageFromPeer', Object.assign({}, JSON.parse(message.text), {from: PlayerId}));
+}
 
-    if (message.type === 'offer') {
-        createAnswer(PlayerId, message.offer);
-    }
+window.addEventListener('beforeunload', async ()=> {await channel.leave(); await client.logout();});
 
-    if (message.type === 'answer') {
-        addAnswer(message.answer);
-    }
-
-    if (message.type === 'candidate') {
-        if (peerConnection) {
-            peerConnection.addIceCandidate(message.candidate);
-        }
-    }
-
+function messageToPeers(data, PlayerId) {
+    client.sendMessageToPeer(data, PlayerId);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Agora2RTC
+/*
+uses:
+    client
+    
+
+*/
+
+catchEvent('messageFromPeer', data => {
+    if (data.type === 'offer') {
+        createAnswer(data.from, data.content);
+    }
+    
+    if (data.type === 'answer') {
+        addAnswer(data.content);
+    }
+    
+    if (data.type === 'candidate') {
+        if (peerConnection) {
+            peerConnection.addIceCandidate(data.content);
+        }
+    }
+    //convert to switch + add else to use for game data communication
+});
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//WebRTC
+/*
+uses: 
+    messageToPeers
+
+defines: 
+    peerConnection
+    localStream
+    remoteStream
+    dataChannel
+*/
+
+
+
 const servers = {iceServers:[{ urls:["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]}]};
 
 let peerConnection;
@@ -111,9 +169,8 @@ async function enableLocalStream() {
 async function createPeerConnection(PlayerId) {
     peerConnection = new RTCPeerConnection(servers);
 
+    //media
     remoteStream = new MediaStream();
-    document.getElementById('video2').srcObject = remoteStream;
-
     //await enableLocalStream();
 
     peerConnection.ontrack = (event) => {
@@ -125,24 +182,18 @@ async function createPeerConnection(PlayerId) {
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
             //console.log("New ICE candidate:", event.candidate);
-            client.sendMessageToPeer({ text: JSON.stringify({ 'type': "candidate", 'candidate': event.candidate }) }, PlayerId);
+            messageToPeers({ text: JSON.stringify({ 'type': "candidate", 'content': event.candidate }) }, PlayerId);
         }
     };
 
     //data
-    dataChannel = peerConnection.createDataChannel('GameData');
-
     peerConnection.ondatachannel = async (event) => {
-        const dataChannel = event.channel;
-
-        dataChannel.onmessage = event => {
-            const data = JSON.parse(event.data);
-
-            if (data.type === 'roll') {
-                logRoll(data.player, data.value);
-            }
+        event.channel.onmessage = message => {
+            triggerEvent('receiveGameData', JSON.parse(message.data));
         };
     };
+
+    dataChannel = peerConnection.createDataChannel('GameData');
 }
 
 async function createOffer(PlayerId) {
@@ -151,7 +202,7 @@ async function createOffer(PlayerId) {
     let offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
-    client.sendMessageToPeer({ text: JSON.stringify({ 'type': "offer", 'offer': offer }) }, PlayerId);
+    messageToPeers({ text: JSON.stringify({ 'type': "offer", 'content': offer }) }, PlayerId);
 }
 
 catchEvent('playerJoined', data => {
@@ -177,9 +228,13 @@ function sendGameData(type, value) {
     }
 }
 
-function receiveGameData(data) {
+catchEvent('receiveGameData', data => {
+    if (data.type === 'roll') {
+        logRoll(data.player, data.value);
+    }        
+});
 
-}
+
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Game
@@ -199,6 +254,8 @@ function removePlayer(PlayerId) {
         playerList.removeChild(playerToRemove);
     }
 }
+
+document.getElementById('video2').srcObject = remoteStream;
 
 //events API
 
@@ -257,7 +314,7 @@ async function createAnswer(PlayerId, offer) {
     let answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
 
-    client.sendMessageToPeer({ text: JSON.stringify({ 'type': "answer", 'answer': answer }) }, PlayerId);
+    client.sendMessageToPeer({ text: JSON.stringify({ 'type': "answer", 'content': answer }) }, PlayerId);
 }
 
 async function addAnswer(answer) {
