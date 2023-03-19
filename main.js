@@ -3,9 +3,10 @@
 //player colors
 
 //requre agora-rtm from Agora.js
-//script modules + subfolders
+//script modules
 //test room invite link
 //?reenter as new/old user
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //WebRTC
 /*

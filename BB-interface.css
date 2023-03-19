@@ -42,6 +42,13 @@ input {
     border-radius: .25em;
 }
 
+.colorCircle {
+    width: 1em;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: inline-block;
+}
+
 button {
     display: block;
     width: 7em;

@@ -1,3 +1,10 @@
+/*TODO:
+send/receive GameData with messages
+switch in signalFromPeer
+signalFromPeer: event -> function
+*/
+
+
 //AGORA login
 /*
 requires:
@@ -54,6 +61,10 @@ async function AgoraMessage(message, fromPlayer) {
     triggerEvent('signalFromPeer', Object.assign({}, JSON.parse(message.text), { from: fromPlayer }));
 }
 window.addEventListener('beforeunload', async () => { await channel.leave(); await client.logout(); });
+
+
+
+
 //RTCsignaling + messages
 catchEvent('signalFromPeer', data => {
     if (data.type === 'offer') {
