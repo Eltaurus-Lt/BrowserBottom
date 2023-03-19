@@ -43,25 +43,35 @@ input {
 }
 
 #color-selection {
-    width: 12em;
+    width: 14em;
     margin: .5em auto 1.5em;
     display: flex;
-    gap: .2em;
+    gap: 0.25em;
     flex-wrap: wrap;
     justify-content: center;
     /* background: lightcoral; */
 }
 
 .colorCircle {
-    width: 1.5em;
+    appearance: none;
+    padding: 0;
+    margin: 0;
+    width: 2.7em;
     aspect-ratio: 1;
     border-radius: 50%;
     display: inline-block;
     border: 2px solid var(--col-window);
+    background: var(--col-primary, currentColor);
+    /* outline: 2px solid blue; */
+    cursor: pointer;
 }
 
 .colorCircle:hover {
-    outline: 2px solid white;
+    outline: 1.5px solid white;
+}
+.colorCircle:checked{
+    outline: 2.5px solid white;
+    /* border-width: 1.5px; */
 }
 
 button {
