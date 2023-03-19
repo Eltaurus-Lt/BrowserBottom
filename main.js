@@ -57,7 +57,7 @@ async function createPeerConnection(toPlayer) {
     //media
     remoteStream = new MediaStream();
     document.getElementById('video2').srcObject = remoteStream;
-    await enableLocalStream();
+    //await enableLocalStream();
 
     peerConnection.ontrack = (event) => {
         console.log("ontrack");
