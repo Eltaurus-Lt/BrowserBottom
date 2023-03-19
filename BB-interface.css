@@ -42,11 +42,26 @@ input {
     border-radius: .25em;
 }
 
+#color-selection {
+    width: 12em;
+    margin: .5em auto 1.5em;
+    display: flex;
+    gap: .2em;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* background: lightcoral; */
+}
+
 .colorCircle {
-    width: 1em;
+    width: 1.5em;
     aspect-ratio: 1;
     border-radius: 50%;
     display: inline-block;
+    border: 2px solid var(--col-window);
+}
+
+.colorCircle:hover {
+    outline: 2px solid white;
 }
 
 button {

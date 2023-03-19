@@ -1,4 +1,6 @@
-fetch('Players/colors.json')
+//TODO:
+//fetch('Players/colors.json')
+fetch('https://raw.githubusercontent.com/Eltaurus-Lt/BrowserBottom/master/Players/colors.json')
   .then(response => response.json())
   .then(colors => {
     const colorCircles = document.getElementById('color-selection');
