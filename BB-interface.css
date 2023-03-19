@@ -51,6 +51,7 @@ button {
     background: var(--col-accent-dark);
     border: 1px solid var(--col-accent-light);
     border-radius: .25em;
+    cursor: pointer;
 }
 
 #login-data {

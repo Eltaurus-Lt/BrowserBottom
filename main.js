@@ -1,42 +1,10 @@
+//GameState (playerlist + )
 //Refactor + split
-//audio + controls + playerlist
+//audio + controls 
 
 //player colors
 //test room invite link
 //?reenter as new/old user
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//parse login + custom events API
-/*
-defines:
-    CurrentPlayer
-    roomId
-    
-    triggerEvent(event, data_object)
-    catchEvent(event, function(data))
-*/
-let CurrentPlayer = localStorage.getItem('BB-Name');
-
-let queryString = window.location.search;
-let urlParams = new URLSearchParams(queryString);
-let roomId = urlParams.get('room');
-if (roomId && roomId!="")  {
-    localStorage.setItem('BB-Room', roomId);
-}
-if (!roomId || !CurrentPlayer) {
-    window.location = "index.html";
-}
-
-function triggerEvent(event, data) {
-    window.dispatchEvent(
-        new CustomEvent(event, {detail: data})
-    );
-}
-function catchEvent(event, func) {
-    window.addEventListener(event, 
-        (event) => {func(event.detail)}
-    );
-}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //AGORA login
@@ -45,17 +13,17 @@ requires:
     CurrentPlayer
     roomId
 
-defines:
-    channel
-    client
-    
+defines:  
     signalToPeer(data, PlayerId)
     initConnection()
 
 triggers:
     playerJoined data.{PlayerId}
     playerLeft data.{PlayerId}
-    signalFromPeer data.{from, type, content}
+    createAnswer.{offer, toPlayer}
+    addAnswer.{answer, fromPlayer}
+    icecandidate.{candidate}
+    [receiveGameData.{...}]
 
     leave+logout before unload
 */
@@ -69,7 +37,6 @@ let token = null;
 let uid = CurrentPlayer;
 let client;
 let channel; 
-//let signalToPeer;
 
 async function initConnection() {
     client = await AgoraRTM.createInstance(APP_ID);
@@ -84,7 +51,6 @@ async function initConnection() {
 };
 
 async function AgoraUserJoined(PlayerId) {
- //   console.log('PlayerId:', PlayerId);
     triggerEvent('playerJoined', {PlayerId: PlayerId});
 }
 
@@ -102,22 +68,8 @@ async function AgoraMessage(message, fromPlayer) {
 
 window.addEventListener('beforeunload', async ()=> {await channel.leave(); await client.logout();});
 
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//Agora2RTC
-/*
-triggers:
-    createAnswer.{offer, toPlayer}
-    addAnswer.{answer, fromPlayer}
-    icecandidate.{candidate}
-    (receiveGameData)
 
-catches: 
-    signalFromPeer    
-
-*/
-
-
-
+//RTCsignaling + messages
 catchEvent('signalFromPeer', data => {
     if (data.type === 'offer') {
         triggerEvent('createAnswer', {'offer': data.content, 'toPlayer': data.from});
