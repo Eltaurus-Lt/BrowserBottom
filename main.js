@@ -1,6 +1,5 @@
-//GameState (playerlist + )
 //audio + controls 
-//player colors
+//player names list -> GameState -> Sync GameState on join
 
 //requre agora-rtm from Agora.js
 //script modules
@@ -162,12 +161,27 @@ function removePlayer(PlayerId) {
     }
 }
 
-document.getElementById('video2').srcObject = remoteStream;
+//videochat
+let videoMonitor = document.getElementById('video2');
+videoMonitor.srcObject = remoteStream;
+
+let monitorBtn = document.getElementById('toggleMonitor');
+monitorBtn.onclick = () => {
+    let status = monitorBtn.getAttribute('data-on');
+    if (status && status === "on") {
+        videoMonitor.style.visibility = 'hidden';
+        monitorBtn.setAttribute('data-on', "off");
+    } else {
+        videoMonitor.style.visibility = 'visible';
+        monitorBtn.setAttribute('data-on', "on");
+    }
+
+}
 
 //events API
 
 catchEvent('playerJoined', data => {
-    //console.log(data.PlayerId, "joined the party \\o/");    
+    console.log("🎉",upperFirst(data.PlayerId), "player joined the party \\o/");    
     addPlayer(data.PlayerId);
 });
 catchEvent('playerLeft', data => {

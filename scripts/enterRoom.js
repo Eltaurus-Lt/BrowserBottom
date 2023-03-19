@@ -8,7 +8,7 @@ defines:
     catchEvent(event, function(data))
 */
 
-let CurrentPlayer = localStorage.getItem('BB-Name');
+let CurrentPlayer = localStorage.getItem('BB-Color');
 
 let queryString = window.location.search;
 let urlParams = new URLSearchParams(queryString);
@@ -31,3 +31,8 @@ function catchEvent(event, func) {
         (event) => { func(event.detail); }
     );
 }
+
+//capitalize the first letter in a string
+function upperFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
