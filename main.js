@@ -30,7 +30,13 @@ triggers:
 
 
 
-const servers = {iceServers:[{ urls:["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]}]};
+const configuration = {
+    iceServers:[
+        { urls:["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]}
+    ],
+    offerToReceiveAudio: true,
+    offerToReceiveVideo: true
+};
 
 let peerConnection;
 let localStream;
@@ -38,21 +44,25 @@ let remoteStream;
 let dataChannel;
 
 async function enableLocalStream() {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     localStream.getTracks().forEach((track) => {
+        console.log("track added");
         peerConnection.addTrack(track, localStream);
     });
 }
 
 async function createPeerConnection(toPlayer) {
-    peerConnection = new RTCPeerConnection(servers);
+    peerConnection = new RTCPeerConnection(configuration);
 
     //media
     remoteStream = new MediaStream();
-    //await enableLocalStream();
+    document.getElementById('video2').srcObject = remoteStream;
+    await enableLocalStream();
 
     peerConnection.ontrack = (event) => {
+        console.log("ontrack");
         event.streams[0].getTracks().forEach((track) => {
+            document.getElementById('video2').style.display = 'inline-block';
             remoteStream.addTrack(track);
         });
     };
@@ -163,7 +173,13 @@ function removePlayer(PlayerId) {
 
 //videochat
 let videoMonitor = document.getElementById('video2');
-videoMonitor.srcObject = remoteStream;
+// videoMonitor.srcObject = remoteStream;
+
+// let connectionBtn = document.getElementById('toggleMedia');
+// connectionBtn.onclick = async () => {
+//     await enableLocalStream();
+// //    videoMonitor.srcObject = localStream;
+// }
 
 let monitorBtn = document.getElementById('toggleMonitor');
 monitorBtn.onclick = () => {
