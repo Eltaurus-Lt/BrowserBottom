@@ -51,41 +51,59 @@ function moveCat(catID, cellID) {
 function initGame() {
 
     field = document.getElementById("field");
+    board = document.getElementById("board");
+    grayHand = document.getElementById("GrayHand");
+    redHand = document.getElementById("RedHand");
+
+    for (let i = 0; i < 8; i++) {
+        const newRedCell = document.createElement("div");
+        newRedCell.id = ("red" + i);
+        newRedCell.classList.add("catBox");
+        redHand.appendChild(newRedCell);
+
+        const newRedCat = document.createElement("div");
+        newRedCat.id = ("CatRed" + i);
+        newRedCat.classList.add("kitten", "red");
+        newRedCell.appendChild(newRedCat);
+
+        const newGrayCell = document.createElement("div");
+        newGrayCell.id = ("gray" + i);
+        newGrayCell.classList.add("catBox");
+        grayHand.appendChild(newGrayCell);
+
+        const newGrayCat = document.createElement("div");
+        newGrayCat.id = ("CatGray" + i);
+        newGrayCat.classList.add("kitten", "gray");
+        newGrayCell.appendChild(newGrayCat);
+    }
+
+    const a = 6;
+    for (let i = 0; i < (a + 2) ** 2; i++) {
+        const newBoardCell = document.createElement("div");
+        newBoardCell.id = ("BoardCell" + i);
+        newBoardCell.classList.add("boardCell");
+        if (i < a + 2) {newBoardCell.classList.add("top")};
+        if (i >= (a + 2) * (a + 1)) {newBoardCell.classList.add("bottom")};
+        if (i % (a + 2) == 0) {newBoardCell.classList.add("left")};
+        if (i % (a + 2) == (a + 1)) {newBoardCell.classList.add("right")};
+        board.appendChild(newBoardCell);
+    }
+
     
     cells = document.querySelectorAll(".catBox, .boardCell");
     cells.forEach((cell, index) => {
-        cell.id = ("cell" + index);
         cell.addEventListener('click', () => moveToCell(cell));
-
-        //delete handmade cat divs
-        while (cell.firstChild) {
-            cell.removeChild(cell.firstChild);
-        }
-
-        if (cell.parentElement.id === "GrayHand" && cell.children.length === 0) {
-            const newCat = document.createElement("div");
-            newCat.classList.add("kitten", "gray");
-            cell.appendChild(newCat);
-        }
-
-        if (cell.parentElement.id === "RedHand" && cell.children.length === 0) {
-            const newCat = document.createElement("div");
-            newCat.classList.add("kitten", "red");
-            cell.appendChild(newCat);
-        }
-      });
-
+    });
 
     counters = document.querySelectorAll(".kitten, .cat");
-    counters.forEach((item, index) => {
-        item.id = ("cat" + index);
-        item.addEventListener('click', () => selectCat(item));
+    counters.forEach((cat, index) => {
+        cat.addEventListener('click', () => selectCat(cat));
     });
 
 
 };
 
-let selected, field, cells, counters, grayCells, redCells;
+let selected, field, board, cells, counters, grayHand, redHand, grayCells, redCells;
 initGame();
 
 catchEvent('receiveGameData', data => {
