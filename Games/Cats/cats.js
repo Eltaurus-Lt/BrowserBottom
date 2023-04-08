@@ -37,15 +37,24 @@ function moveCat(catID, cellID) {
     const targetPos = cell.getBoundingClientRect();
 
     cat.style.transition = "transform 500ms ease-in-out";
-    cat.style.transform = `translate(${targetPos.left - startPos.left}px, ${targetPos.top - startPos.top}px)`;
-
-    setTimeout(() => {
+    const reparent = () => {
         cell.appendChild(cat);
         cat.style.left = "0";
         cat.style.right = "0";
         cat.style.transform = "";
 
-    }, 500);
+        cat.removeEventListener('transitionend', reparent);
+    };
+    cat.addEventListener('transitionend', reparent);
+    cat.style.transform = `translate(${targetPos.left - startPos.left}px, ${targetPos.top - startPos.top}px)`;
+
+    // setTimeout(() => {
+    //     cell.appendChild(cat);
+    //     cat.style.left = "0";
+    //     cat.style.right = "0";
+    //     cat.style.transform = "";
+
+    // }, 500);
 }
 
 function initGame() {
