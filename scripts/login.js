@@ -74,7 +74,7 @@ form.addEventListener('submit', (event) => {
 
 
 
-  window.location = `Dice.html?room=${room}`;
+  window.location = `Games/Cats/Cats.html?room=${room}`;
   // Do something with the form data, for example:
   //const formData = { appid, room, playerName, color };
   //const encodedFormData = encodeURIComponent(JSON.stringify(formData));

@@ -1,3 +1,11 @@
+//1)move     
+// document.getElementById('video2').srcObject = remoteStream;
+// ||
+// await enableLocalStream();
+//down the stream
+//2) checks if local/remote stream
+//3) handle permission rejections
+
 //audio + controls 
 //player names list -> GameState -> Sync GameState on join
 
@@ -171,29 +179,6 @@ function removePlayer(PlayerId) {
     }
 }
 
-//videochat
-let videoMonitor = document.getElementById('video2');
-// videoMonitor.srcObject = remoteStream;
-
-// let connectionBtn = document.getElementById('toggleMedia');
-// connectionBtn.onclick = async () => {
-//     await enableLocalStream();
-// //    videoMonitor.srcObject = localStream;
-// }
-
-let monitorBtn = document.getElementById('toggleMonitor');
-monitorBtn.onclick = () => {
-    let status = monitorBtn.getAttribute('data-on');
-    if (status && status === "on") {
-        videoMonitor.style.visibility = 'hidden';
-        monitorBtn.setAttribute('data-on', "off");
-    } else {
-        videoMonitor.style.visibility = 'visible';
-        monitorBtn.setAttribute('data-on', "on");
-    }
-
-}
-
 //events API
 
 catchEvent('playerJoined', data => {
@@ -213,19 +198,6 @@ catchEvent('receiveGameData', data => {
 });
 
 //Gameplay functions
-
-function logRoll(player, roll) {
-    let log = document.getElementById("log");
-    let logentry = log.appendChild(document.createElement("div"));
-    logentry.innerHTML = (player ? player : "Player ?") + " rolled " + roll;
-    log.scrollTop = log.scrollHeight;
-}
-
-function diceRoll() {
-    let roll = Math.floor(100 * Math.random());
-    sendGameData("roll", roll);  
-    logRoll(CurrentPlayer, roll);
-}
 
 addPlayer(CurrentPlayer);
 initConnection();

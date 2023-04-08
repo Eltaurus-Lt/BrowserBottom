@@ -1,0 +1,174 @@
+body {
+    inset: 0;
+    padding: 0;
+    margin: 0;
+    height: 95vh;
+}
+
+#field {
+   /* background: rgba(173, 216, 230, 0.144);*/
+
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 7vh;
+}
+
+#board {
+    height: 72%;
+    aspect-ratio: 1;
+
+ /*   background:rgba(173, 216, 230, 0.144);*/
+
+    background-image: url("board.png");
+    background-size: 95%;
+    background-position: 58% 71%;
+
+    background-origin: content-box;
+    background-repeat: no-repeat;
+   
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+}
+
+.boardCell {
+    /* background-color: #0002; */
+    transition: box-shadow .15s;
+}
+.boardCell:nth-child(16n+2),
+.boardCell:nth-child(16n+4),
+.boardCell:nth-child(16n+6),
+.boardCell:nth-child(16n+8),
+.boardCell:nth-child(16n+9),
+.boardCell:nth-child(16n+11),
+.boardCell:nth-child(16n+13),
+.boardCell:nth-child(16n+15) {
+    /* background-color: #09c1; */
+}
+
+.boardCell.top,
+.boardCell.bottom,
+.boardCell.left,
+.boardCell.right {
+    position: relative;
+    cursor: initial !important;
+    box-shadow: none !important;
+}
+.boardCell.top {
+    top: -50%;
+}
+.boardCell.bottom {
+    bottom: -50%;
+}
+.boardCell.left {
+    left: -50%;
+}
+.boardCell.right {
+    right: -50%;
+}
+
+
+
+.hand {
+    height: 50%;
+
+    /* background: coral; */
+    
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column-reverse;
+    align-items: center;
+    align-content: flex-start;
+    justify-content: center;
+    gap: 1vh;
+}
+
+#GrayHand {
+    transform: rotate(180deg);
+}
+
+.catBox {
+    height: 18%;
+    aspect-ratio: 1;
+    background: #09c1;
+
+    transition: box-shadow .15s;
+}
+#GrayHand .catBox {
+    transform: rotate(180deg);
+}
+
+
+
+
+.kitten,
+.cat {
+    aspect-ratio: 1;
+    background-repeat: no-repeat;
+   /* background-origin: content-box; */
+}
+
+.cat {
+    width: 100%;
+    background-size: 100%;
+}
+.kitten {
+    width: 100%;
+    background-size: 100%;
+}
+
+.cat.gray {
+    background-image: url(cat_gray.png);
+    background-position: 40% 180%;
+}
+.cat.red {
+    background-image: url(cat_red.png);
+    background-position: 90% 120%;
+}
+.kitten.gray {
+    background-image: url(kitten_gray.png);
+    background-position: 50% 90%;
+}
+.kitten.red {
+    background-image: url(kitten_red.png);
+    background-position: 80% 90%;
+}
+
+
+.catBox    .selected {
+    box-shadow: 0 0 10px 0px #ffffff,
+                0 0 20px 0px #c2c2c2,
+                0 0 30px 0px rgba(119, 119, 119, 0.507);
+}
+#field:not(.catSelected) .boardCell:hover:has(div),
+#field.catSelected       .boardCell:hover:has(div),
+#field.catSelected       .boardCell:hover:empty {
+    box-shadow: 0 0 10px 4px #95efff,
+                0 0 20px 0px #6fafda,
+                0 0 30px 0px rgba(16, 37, 94, 0.507);
+    cursor: pointer;
+}
+#field.catSelected       .catBox:hover:empty,
+#field:not(.catSelected) .catBox:hover:has(div),
+#field.catSelected       .catBox:hover:has(div),
+.boardCell .selected  {
+    box-shadow: 0 0 10px 0px rgb(218, 255, 114),
+                0 0 20px 0px rgb(177, 255, 88),
+                0 0 30px 0px rgba(58, 94, 16, 0.507);
+    cursor: pointer;
+}
+
+
+/* .boardCell:hover {
+    box-shadow: 0 0 10px 0px #fff891,
+                0 0 20px 0px #ffa621,
+                0 0 30px 0px rgba(94, 41, 16, 0.507);
+    cursor: pointer;
+} */
