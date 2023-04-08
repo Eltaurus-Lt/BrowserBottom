@@ -18,7 +18,7 @@ if (roomId && roomId != "") {
 }
 
 if (!roomId || !CurrentPlayer) {
-    window.location = "login.html";
+    window.location = "../../index.html";
 }
 
 function triggerEvent(event, data) {

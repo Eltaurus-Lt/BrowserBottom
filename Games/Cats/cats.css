@@ -39,7 +39,7 @@ body {
 }
 
 .boardCell {
-    /* background-color: #0002; */
+    background-color: #0002;
     transition: box-shadow .15s;
     box-sizing: border-box;
 }
@@ -51,7 +51,7 @@ body {
 .boardCell:nth-child(16n+11),
 .boardCell:nth-child(16n+13),
 .boardCell:nth-child(16n+15) {
-    /* background-color: #09c1; */
+    background-color: #09c1;
 }
 
 .boardCell.top,
@@ -73,6 +73,12 @@ body {
 }
 .boardCell.right {
     right: -50%;
+}
+.boardCell.top,
+.boardCell.right,
+.boardCell.bottom,
+.boardCell.left {
+    outline: none !important;
 }
 
 
@@ -143,11 +149,17 @@ body {
     background-position: 80% 90%;
 }
 
+.boardCell,
+.catBox {
+    border-radius: 10%;
+}
 
 .catBox    .selected {
     box-shadow: 0 0 10px 0px #ffffff,
+                inset 0 0 5px 0px #ffffff,
                 0 0 20px 0px #c2c2c2,
                 0 0 30px 0px rgba(119, 119, 119, 0.507);
+    border-radius: 10%;
 }
 #field:not(.catSelected) .boardCell:hover:has(div),
 #field.catSelected       .boardCell:hover:has(div),
@@ -158,7 +170,7 @@ body {
                 inset 0 0 10px 0px #95efff,
                 inset 0 0 20px 0px #6fafda,
                 inset 0 0 30px 0px rgba(255, 255, 255, 0.507);
-    border: solid 2px #fff9;
+    outline: solid 2px #fff9;
     cursor: pointer;
 }
 #field.catSelected       .catBox:hover:empty,
@@ -167,6 +179,7 @@ body {
 .boardCell .selected  {
     box-shadow: 0 0 10px 0px rgb(218, 255, 114),
                 0 0 20px 0px rgb(177, 255, 88),
+                inset 0 0 10px 0px rgb(177, 255, 88),
                 0 0 30px 0px rgba(58, 94, 16, 0.507);
     cursor: pointer;
 }
