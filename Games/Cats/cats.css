@@ -41,6 +41,7 @@ body {
 .boardCell {
     /* background-color: #0002; */
     transition: box-shadow .15s;
+    box-sizing: border-box;
 }
 .boardCell:nth-child(16n+2),
 .boardCell:nth-child(16n+4),
@@ -112,6 +113,7 @@ body {
 .cat {
     aspect-ratio: 1;
     background-repeat: no-repeat;
+    box-sizing: border-box;
    /* background-origin: content-box; */
 }
 
@@ -150,9 +152,13 @@ body {
 #field:not(.catSelected) .boardCell:hover:has(div),
 #field.catSelected       .boardCell:hover:has(div),
 #field.catSelected       .boardCell:hover:empty {
-    box-shadow: 0 0 10px 4px #95efff,
+    box-shadow: 0 0 10px 0px #95efff,
                 0 0 20px 0px #6fafda,
-                0 0 30px 0px rgba(16, 37, 94, 0.507);
+                /* 0 0 30px 0px rgba(16, 37, 94, 0.507), */
+                inset 0 0 10px 0px #95efff,
+                inset 0 0 20px 0px #6fafda,
+                inset 0 0 30px 0px rgba(255, 255, 255, 0.507);
+    border: solid 2px #fff9;
     cursor: pointer;
 }
 #field.catSelected       .catBox:hover:empty,

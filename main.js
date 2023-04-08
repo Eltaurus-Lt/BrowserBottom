@@ -63,8 +63,8 @@ async function createPeerConnection(toPlayer) {
     peerConnection = new RTCPeerConnection(configuration);
 
     //media
-    remoteStream = new MediaStream();
-    document.getElementById('video2').srcObject = remoteStream;
+    //remoteStream = new MediaStream();
+    //document.getElementById('video2').srcObject = remoteStream;
     //await enableLocalStream();
 
     peerConnection.ontrack = (event) => {
@@ -191,11 +191,7 @@ catchEvent('playerLeft', data => {
 });
 //console.log('playerJoined event:', typeof window['playerJoined']);
 
-catchEvent('receiveGameData', data => {
-    if (data.type === 'roll') {
-        logRoll(data.player, data.value);
-    }        
-});
+
 
 //Gameplay functions
 

@@ -20,17 +20,19 @@ function deselectCat() {
 
 function moveToCell(cell) {
     if (selected && selected.parentNode !== cell) {
-        moveCat(selected.id, cell);
+        sendGameData("movecat", [selected.id, cell.id]);
+        moveCat(selected.id, cell.id);
     }
 }
 
-function moveCat(catID, cell) {
+function moveCat(catID, cellID) {
 
-    if (selected.id === catID) {
+    if (selected && selected.id === catID) {
         deselectCat();
     }
 
     const cat = document.getElementById(catID);
+    const cell = document.getElementById(cellID);
     const startPos = cat.getBoundingClientRect();
     const targetPos = cell.getBoundingClientRect();
 
@@ -51,7 +53,8 @@ function initGame() {
     field = document.getElementById("field");
     
     cells = document.querySelectorAll(".catBox, .boardCell");
-    cells.forEach(cell => {
+    cells.forEach((cell, index) => {
+        cell.id = ("cell" + index);
         cell.addEventListener('click', () => moveToCell(cell));
 
         //delete handmade cat divs
@@ -84,3 +87,9 @@ function initGame() {
 
 let selected, field, cells, counters, grayCells, redCells;
 initGame();
+
+catchEvent('receiveGameData', data => {
+    if (data.type === 'movecat') {
+        moveCat(data.value[0], data.value[1]);
+    }        
+});
