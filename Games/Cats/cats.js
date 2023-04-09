@@ -140,11 +140,18 @@ function moveCat(catID, cellID) {
 
     
     setTimeout(() => {
-        //check triplets
         let win = false;
+        let countred = 0, countgray = 0;
+
+        
         innerCells.forEach(cell => {
             const catmid = cell.firstChild;
             if (catmid && catmid.classList.contains("cat")) {
+                //count cats on the board
+                if (catmid.classList.contains("red")) {countred++};
+                if (catmid.classList.contains("gray")) {countgray++};
+
+                //check triplets
                 directions.forEach(dir => {
                     const catone = CellOffset(cell, dir[0]).firstChild;
                     const cattwo = CellOffset(cell, dir[1]).firstChild;
@@ -162,8 +169,17 @@ function moveCat(catID, cellID) {
             }
         })
 
+        if (countred == b) {
+            field.classList.add("redwin");
+            win = true;    
+        }
+        if (countgray == b) {
+            field.classList.add("graywin");
+            win = true;    
+        }
+
         if (win) {
-            //play sound
+            winsound.play();
         } else {
             innerCells.forEach(cell => {
                 const catmid = cell.firstChild;
@@ -229,7 +245,7 @@ function initGame() {
             if (i >= (a + 2) * (a + 1)) {newBoardCell.classList.add("bottom")};
             if (i % (a + 2) == 0)       {newBoardCell.classList.add("left")};
             if (i % (a + 2) == (a + 1)) {newBoardCell.classList.add("right")};
-            if (i > 2 * (a + 2) && i < a * (a + 2) && i % (a + 2) > 1 && i % (a + 2) < a) {newBoardCell.classList.add("innerCell")};
+            if (i > (a + 2) && i < (a + 1) * (a + 2) && i % (a + 2) >= 1 && i % (a + 2) <= a) {newBoardCell.classList.add("innerCell")};
         board.appendChild(newBoardCell);
     }
 
@@ -254,6 +270,7 @@ const a = 6; //board size
 const b = 8; //hand size
 const directions = [[[-1,-1],[1,1]], [[-1,0],[1,0]], [[-1,1],[1,-1]], [[0,-1],[0,1]]];
 let selected, field, board, cells, innerCells, counters, grayHand, redHand, grayCells, redCells;
+var winsound = new Audio('sounds/Party Horn.mp3');
 initGame();
 
 catchEvent('receiveGameData', data => {
