@@ -85,6 +85,10 @@ button {
     border-radius: .25em;
     cursor: pointer;
 }
+button:active {
+    padding-top: calc(.25em + 1px);
+    padding-bottom: calc(.25em - 1px);
+}
 button[data-on="on"] {
     background: var(--col-accent-light);
 }

@@ -266,6 +266,21 @@ function initGame() {
 
 };
 
+function deleteAllChildren (obj) {
+    while (obj.firstChild) {
+        obj.removeChild(obj.firstChild);
+    }
+}
+
+function resetGame() {
+    field.classList.remove("redwin", "graywin", "catSelected");
+    selected = undefined;
+    deleteAllChildren(grayHand);
+    deleteAllChildren(redHand);
+    deleteAllChildren(board);
+    initGame();
+}
+
 const a = 6; //board size
 const b = 8; //hand size
 const directions = [[[-1,-1],[1,1]], [[-1,0],[1,0]], [[-1,1],[1,-1]], [[0,-1],[0,1]]];
@@ -276,5 +291,13 @@ initGame();
 catchEvent('receiveGameData', data => {
     if (data.type === 'movecat') {
         moveCat(data.value[0], data.value[1]);
-    }        
+    } else if (data.type === 'gamereset') {
+        resetGame();
+    }
 });
+
+//buttons
+document.getElementById('restartBtn').onclick = ()=>{
+    resetGame();
+    sendGameData("gamereset", "");
+};
