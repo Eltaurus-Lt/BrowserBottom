@@ -71,16 +71,15 @@ function returnToHand(cat, cell) {
             i = 0;
             while (i < grayCells.length && !grayCells[i].classList.contains('free')) {i++};
             if (i < grayCells.length) {
-
                 cat.style.transition = "transform 500ms ease-in-out"; 
                 animateMovement(cat, grayCells[i]);
             }
         }
+
         if (cat.classList.contains('red')) {
             i = 0;
             while (i < redCells.length && !redCells[i].classList.contains('free')) {i++};
             if (i < redCells.length) {
-
                 cat.style.transition = "transform 500ms ease-in-out"; 
                 animateMovement(cat, redCells[i]);
             }
@@ -105,6 +104,12 @@ function repel(cat, cell) {
     }
 }
 
+function grow(cat) {
+    cat.classList.add('cat');
+    cat.classList.remove('kitten');
+}
+
+
 function moveCat(catID, cellID) {
 
     if (selected && selected.id === catID) {
@@ -113,13 +118,16 @@ function moveCat(catID, cellID) {
 
     const cat = document.getElementById(catID);
     const cell = document.getElementById(cellID);
+    const startCell = cat.parentElement;
 
     if (cell.classList.contains('boardCell')) {
         cat.style.transition = "transform 500ms ease-in";
+        animateMovement(cat, cell, repel);
     } else {
         cat.style.transition = "transform 500ms ease-in-out";
+        animateMovement(cat, cell, (startCell.classList.contains('boardCell')) ? grow : undefined);
     }
-    animateMovement(cat, cell, repel);
+
 
 }
 

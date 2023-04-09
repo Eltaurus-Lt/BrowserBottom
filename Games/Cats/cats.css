@@ -152,6 +152,22 @@ body {
     background-image: url(pix/kitten_red.png);
     background-position: 80% 90%;
 }
+.graywin .cat.gray {
+    background-image: url(pix/party_cat_gray.png);
+    background-position: 40% 180%;
+}
+.redwin .cat.red {
+    background-image: url(pix/party_cat_red.png);
+    background-position: 90% 120%;
+}
+.graywin .kitten.gray {
+    background-image: url(pix/party_kitten_gray.png);
+    background-position: 50% 90%;
+}
+.redwin .kitten.red {
+    background-image: url(pix/party_kitten_red.png);
+    background-position: 80% 90%;
+}
 
 .boardCell,
 .catBox {
