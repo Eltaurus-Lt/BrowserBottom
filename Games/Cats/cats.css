@@ -113,7 +113,9 @@ body {
 #GrayHand .catBox {
     transform: rotate(180deg);
 }
-
+.catBox.free {
+    background: rgba(0, 204, 126, 0.301);
+}
 
 
 
