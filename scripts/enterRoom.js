@@ -9,15 +9,17 @@ defines:
 */
 
 let CurrentPlayer = localStorage.getItem('BB-Color');
+if (!CurrentPlayer) {
+    CurrentPlayer = "RND" + Math.random().toString(36).substring(2, 7);
+}
 
 let queryString = window.location.search;
 let urlParams = new URLSearchParams(queryString);
+
 let roomId = urlParams.get('room');
 if (roomId && roomId != "") {
     localStorage.setItem('BB-Room', roomId);
-}
-
-if (!roomId || !CurrentPlayer) {
+} else {
     window.location = "../../index.html";
 }
 

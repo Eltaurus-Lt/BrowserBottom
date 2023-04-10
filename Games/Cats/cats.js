@@ -301,3 +301,13 @@ document.getElementById('restartBtn').onclick = ()=>{
     resetGame();
     sendGameData("gamereset", "");
 };
+
+const invBtn = document.getElementById('inviteBtn');
+invBtn.onclick = async ()=>{
+    const invURL = window.location.href + "&app=" + APP_ID;
+    console.log(invURL.toString());
+
+    navigator.clipboard.writeText(invURL).then(() => {
+        invBtn.innerHTML = "✓ link copied";
+  })
+}

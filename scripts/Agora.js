@@ -25,9 +25,15 @@ triggers:
 
     leave+logout before unload
 */
-let APP_ID = localStorage.getItem('BB-AppID');
-if (!APP_ID) {
-    window.location = "index.html";
+
+let APP_ID = urlParams.get('app');
+if (!APP_ID || APP_ID == "") {
+    APP_ID = localStorage.getItem('BB-AppID');
+} else {
+    localStorage.setItem('BB-AppID', APP_ID);
+}
+if (!APP_ID || APP_ID == "") {
+    window.location = "../../index.html";
 }
 let token = null;
 let uid = CurrentPlayer;

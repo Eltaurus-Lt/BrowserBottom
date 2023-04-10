@@ -120,7 +120,8 @@ body {
     transform: rotate(180deg);
 }
 .catBox.free {
-    background: rgba(0, 204, 126, 0.301);
+     background: rgba(0, 204, 126, 0.301); 
+    /* outline: solid 1px #fff3; */
 }
 
 
