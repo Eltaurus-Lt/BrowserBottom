@@ -22,9 +22,32 @@ body {
                         url(pix/kitten_red.png), 
                         url(pix/kitten_gray.png), 
                         url(pix/cat_red.png), 
-                        url(pix/cat_gray.png);
+                        url(pix/cat_gray.png),
+                        url(pix/turn_red.png),
+                        url(pix/turn_gray.png);
     visibility: hidden;
 
+}
+
+#turnindicator {
+    position: absolute;
+    top: 8vh;
+    height: 60px;
+    aspect-ratio: 1;
+
+
+    cursor: pointer !important;
+    z-index: 1;
+
+    background-image: url(pix/turn_init.png);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+#turnindicator.redturn {
+    background-image: url(pix/turn_red.png);
+}
+#turnindicator.grayturn {
+    background-image: url(pix/turn_gray.png);
 }
 
 #field {

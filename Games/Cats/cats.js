@@ -255,7 +255,6 @@ function initGame() {
         cell.addEventListener('click', () => moveToCell(cell));
     });
     innerCells = document.querySelectorAll(".innerCell");
-    console.log("inner count ", innerCells.length);
 
 
     counters = document.querySelectorAll(".kitten, .cat");
@@ -281,6 +280,26 @@ function resetGame() {
     initGame();
 }
 
+function switchToGray() {
+    turnInd.classList.remove('redturn');
+    turnInd.classList.add('grayturn');
+}
+
+function switchToRed() {
+    turnInd.classList.remove('grayturn');
+    turnInd.classList.add('redturn');
+}
+
+function endGrayTurn() {
+    sendGameData("endgray", "");
+    switchToRed();
+}
+
+function endRedTurn() {
+    sendGameData("endred", "");
+    switchToGray();
+}
+
 const a = 6; //board size
 const b = 8; //hand size
 const directions = [[[-1,-1],[1,1]], [[-1,0],[1,0]], [[-1,1],[1,-1]], [[0,-1],[0,1]]];
@@ -293,7 +312,12 @@ catchEvent('receiveGameData', data => {
         moveCat(data.value[0], data.value[1]);
     } else if (data.type === 'gamereset') {
         resetGame();
+    } else if (data.type === 'endgray') {
+        switchToRed();
+    } else if (data.type === 'endred') {
+        switchToGray();
     }
+    
 });
 
 //buttons
@@ -311,3 +335,16 @@ invBtn.onclick = async ()=>{
         invBtn.innerHTML = "✓ link copied";
   })
 }
+
+const turnInd = document.getElementById('turnindicator');
+turnInd.onclick = ()=>{
+    if (turnInd.classList.contains('redturn')) {
+        endRedTurn();
+    } else if (turnInd.classList.contains('grayturn')){
+        endGrayTurn();
+    } else if (Math.random() < 0.5) {
+        endRedTurn();
+    } else {
+        endGrayTurn();
+    }
+};

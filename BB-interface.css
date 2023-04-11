@@ -77,6 +77,8 @@ input {
 button {
     display: block;
     width: 7em;
+    line-height: 1.4em;
+    text-align: center;
     padding: .25em;
     margin: 1em auto 0;
     color: inherit;
