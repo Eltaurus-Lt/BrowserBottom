@@ -12,6 +12,21 @@ body {
     gap: 1em;
 }
 
+#preload {
+    position: absolute;
+    top: 20vh;
+    background-image:   url(pix/party_kitten_red.png), 
+                        url(pix/party_kitten_gray.png), 
+                        url(pix/party_cat_red.png), 
+                        url(pix/party_cat_gray.png), 
+                        url(pix/kitten_red.png), 
+                        url(pix/kitten_gray.png), 
+                        url(pix/cat_red.png), 
+                        url(pix/cat_gray.png);
+    visibility: hidden;
+
+}
+
 #field {
    /* background: rgba(173, 216, 230, 0.144);*/
 
