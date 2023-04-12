@@ -384,6 +384,11 @@ var stateLog = [];
 initGame();
 
 catchEvent('receiveGameState', gamestate => {
+    if (undoBtn) {
+        stateLog = [];
+        undoBtn.classList.add('inactive');
+    }
+
     loadGameState(gamestate);
 });
 
