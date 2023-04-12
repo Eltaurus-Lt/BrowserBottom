@@ -385,7 +385,9 @@ initGame();
 
 catchEvent('receiveGameState', gamestate => {
     if (undoBtn) {
-        stateLog = [];
+        const prevstate = stateLog.pop();
+// do not compare .selected class        
+        if (prevstate != gamestate) {stateLog = []};
         undoBtn.classList.add('inactive');
     }
 
