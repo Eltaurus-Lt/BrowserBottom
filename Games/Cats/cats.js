@@ -131,6 +131,12 @@ function repel(cat, cell) {
 
 function moveCat(catID, cellID) {
 
+    if (undoBtn) {
+        stateLog.push(gameState());
+        undoBtn.classList.remove('inactive');
+    }
+
+
     if (selected && selected.id === catID) {
         deselectCat();
     }
@@ -325,7 +331,7 @@ function gameState() {
     return gamestate;
 }
 
-function loadGameState(gamestate) {
+function loadGameState(gamestate, keepSelection) {
     console.log(gamestate);
 
     field.classList.add(...gamestate[0]);
@@ -355,7 +361,12 @@ function loadGameState(gamestate) {
         }
     });
 
-    //recount free hand cells
+    if (keepSelection) {
+        selected = document.querySelector(".kitten.selected, .cat.selected");
+    } else {
+        cats.forEach(cat => {cat.classList.remove('selected')});
+    }
+
 }
 
 const a = 6; //board size
@@ -367,6 +378,7 @@ const grayHand = document.getElementById("GrayHand");
 const redHand = document.getElementById("RedHand");
 let selected, cells, innerCells, cats, grayCells, redCells;
 var winsound = new Audio('sounds/Party Horn.mp3');
+var stateLog = [];
 initGame();
 
 catchEvent('receiveGameState', gamestate => {
@@ -392,8 +404,23 @@ document.getElementById('restartBtn').onclick = ()=>{
     sendGameData("gamereset", "");
 };
 
+const undoBtn = document.getElementById('undoBtn');
+if (undoBtn) {
+    undoBtn.onclick = function () {
+        if (!undoBtn.classList.contains('inactive') && stateLog.length > 0) {
+            const prevstate = stateLog.pop();
+            loadGameState(prevstate, true);
+            sendGameState(prevstate);
+            if (stateLog.length < 1) {
+                undoBtn.classList.add('inactive');
+            }
+        }
+    };
+}
+
+
 const invBtn = document.getElementById('inviteBtn');
-invBtn.onclick = async ()=>{
+invBtn.onclick = function () {
     const invURL = window.location.href + "&app=" + APP_ID;
 
     navigator.clipboard.writeText(invURL).then(() => {
@@ -402,13 +429,13 @@ invBtn.onclick = async ()=>{
 }
 
 const syncBtn = document.getElementById('syncBtn');
-syncBtn.onclick = async ()=>{
-    console.log(gameState());
+syncBtn.onclick = function () {
+    //console.log(gameState());
     sendGameState(gameState());
 }
 
 const turnInd = document.getElementById('turnindicator');
-turnInd.onclick = ()=>{
+turnInd.onclick = function () {
     if (turnInd.classList.contains('redturn')) {
         endRedTurn();
     } else if (turnInd.classList.contains('grayturn')){
