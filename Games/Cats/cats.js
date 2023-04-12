@@ -332,7 +332,7 @@ function gameState() {
 }
 
 function loadGameState(gamestate, keepSelection) {
-    console.log(gamestate);
+    //console.log(gamestate);
 
     field.classList.add(...gamestate[0]);
     turnInd.classList.add(...gamestate[1]);
@@ -355,8 +355,10 @@ function loadGameState(gamestate, keepSelection) {
         cat.addEventListener('click', () => selectCat(cat));
     });
 
-    cells.forEach(cell => {
-        if (!cell.firstChild) {
+    document.querySelectorAll(".catBox").forEach(cell => {
+        if (cell.firstChild) {
+            cell.classList.remove('free');
+        } else {
             cell.classList.add('free');
         }
     });
