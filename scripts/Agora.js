@@ -51,7 +51,6 @@ async function initConnection() {
     client.on('MessageFromPeer', AgoraMessage);
 
 }
-;
 
 async function AgoraUserJoined(PlayerId) {
     triggerEvent('playerJoined', { PlayerId: PlayerId });

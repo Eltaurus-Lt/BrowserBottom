@@ -38,42 +38,47 @@ triggers:
 
 
 
-const configuration = {
-    iceServers:[
-        { urls:["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]}
-    ],
-    offerToReceiveAudio: true,
-    offerToReceiveVideo: true
-};
+
+
+// let localStream;
+// let remoteStream;
+
+// async function enableLocalStream() {
+//     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+//     localStream.getTracks().forEach((track) => {
+//         console.log("track added");
+//         peerConnection.addTrack(track, localStream);
+//     });
+// }
 
 let peerConnection;
-let localStream;
-let remoteStream;
 let dataChannel;
 
-async function enableLocalStream() {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    localStream.getTracks().forEach((track) => {
-        console.log("track added");
-        peerConnection.addTrack(track, localStream);
-    });
-}
-
 async function createPeerConnection(toPlayer) {
+
+    const configuration = {
+        iceServers:[
+            { urls:["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"]}
+        ],
+        offerToReceiveAudio: false,
+        offerToReceiveVideo: false
+    };
+
     peerConnection = new RTCPeerConnection(configuration);
 
     //media
-    //remoteStream = new MediaStream();
-    //document.getElementById('video2').srcObject = remoteStream;
-    //await enableLocalStream();
+    
+    // remoteStream = new MediaStream();
+    // document.getElementById('video2').srcObject = remoteStream;
+    // await enableLocalStream();
 
-    peerConnection.ontrack = (event) => {
-        console.log("ontrack");
-        event.streams[0].getTracks().forEach((track) => {
-            document.getElementById('video2').style.display = 'inline-block';
-            remoteStream.addTrack(track);
-        });
-    };
+    // peerConnection.ontrack = (event) => {
+    //     console.log("ontrack");
+    //     event.streams[0].getTracks().forEach((track) => {
+    //         document.getElementById('video2').style.display = 'inline-block';
+    //         remoteStream.addTrack(track);
+    //     });
+    // };
 
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
@@ -165,10 +170,13 @@ catchEvent('RTCmessage', data => {
 
 //interface defs
 let playerList = document.getElementById("playersList");
+let connectionInd = document.getElementById("connectionindicator");
 
 function addPlayer(PlayerId) {
-    let newplayer = playerList.appendChild(document.createElement("li"));
-    newplayer.innerHTML = PlayerId;
+    if (playerList) {
+        let newplayer = playerList.appendChild(document.createElement("li"));
+        newplayer.innerHTML = PlayerId;
+    }
 }
 
 function removePlayer(PlayerId) {
@@ -189,7 +197,6 @@ catchEvent('playerLeft', data => {
     console.log(data.PlayerId, "went home =(");    
     removePlayer(data.PlayerId);
 });
-//console.log('playerJoined event:', typeof window['playerJoined']);
 
 
 

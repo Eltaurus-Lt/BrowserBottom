@@ -1,3 +1,10 @@
+const JUMP_DURATION = 0.5;
+const BOUNCE_DURATION = 0.35;
+const RETURN_DELAY = 0.5;
+const RETURN_DURATION = 0.5;
+const GROW_DELAY = 0.5;
+const GROW_DURATION = 0.5;
+
 function selectCat(cat) {
     if (!selected || selected !== cat) {
         deselectCat();
@@ -80,7 +87,7 @@ function moveToHand(cat, cell) {
         i = 0;
         while (i < grayCells.length && !grayCells[i].classList.contains('free')) {i++};
         if (i < grayCells.length) {
-            cat.style.transition = "transform 500ms ease-in-out"; 
+            cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
             animateMovement(cat, grayCells[i]);
         }
     }
@@ -89,7 +96,7 @@ function moveToHand(cat, cell) {
         i = 0;
         while (i < redCells.length && !redCells[i].classList.contains('free')) {i++};
         if (i < redCells.length) {
-            cat.style.transition = "transform 500ms ease-in-out"; 
+            cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
             animateMovement(cat, redCells[i]);
         }
     }
@@ -111,7 +118,7 @@ function repel(cat, cell) {
                 const boopedCat = offCell.firstChild;
                 const offCell2 = CellOffset(offCell, dir);
                 if (boopedCat && (boopedCat!==cat) && (cat.classList.contains("cat") || boopedCat.classList.contains("kitten")) && offCell2 && (!offCell2.firstChild)) {
-                    boopedCat.style.transition = "transform 350ms ease-out"; 
+                    boopedCat.style.transition = `transform ${BOUNCE_DURATION}s ease-out`; 
                     animateMovement(boopedCat, offCell2, returnAllToHands);
                 }
             }
@@ -130,76 +137,88 @@ function moveCat(catID, cellID) {
     const cell = document.getElementById(cellID);
     const startCell = cat.parentElement;
 
-    if (cell.classList.contains('boardCell')) {
-        cat.style.transition = "transform 500ms ease-in";
-        animateMovement(cat, cell, repel);
-    } else {
-        cat.style.transition = "transform 500ms ease-in-out";
+    if (cell.classList.contains('catBox')) {
+        cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`;
         animateMovement(cat, cell, (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
-    }
 
-    
-    setTimeout(() => {
-        let win = false;
-        let countred = 0, countgray = 0;
-
-        
-        innerCells.forEach(cell => {
-            const catmid = cell.firstChild;
-            if (catmid && catmid.classList.contains("cat")) {
-                //count cats on the board
-                if (catmid.classList.contains("red")) {countred++};
-                if (catmid.classList.contains("gray")) {countgray++};
-
-                //check triplets
-                directions.forEach(dir => {
-                    const catone = CellOffset(cell, dir[0]).firstChild;
-                    const cattwo = CellOffset(cell, dir[1]).firstChild;
-                    if (catone && cattwo && catone.classList.contains("cat") && cattwo.classList.contains("cat")) {
-                        if (catmid.classList.contains("red") && catone.classList.contains("red") && cattwo.classList.contains("red")) {
-                            field.classList.add("redwin");
-                            win = true;                        
-                        }
-                        if (catmid.classList.contains("gray") && catone.classList.contains("gray") && cattwo.classList.contains("gray")) {
-                            field.classList.add("graywin");
-                            win = true;                        
-                        }
-                    }
-                })
+        if (startCell.classList.contains('boardCell')) {
+            if (cat.classList.contains('gray')) {
+                switchToRed();
+            } else if (cat.classList.contains('red')) {
+                switchToGray();
             }
-        })
-
-        if (countred == b) {
-            field.classList.add("redwin");
-            win = true;    
         }
-        if (countgray == b) {
-            field.classList.add("graywin");
-            win = true;    
-        }
+    } else {
+        cat.style.transition = `transform ${JUMP_DURATION}s ease-in`;
+        animateMovement(cat, cell, repel);
+    
+        setTimeout(() => {
+            let win = false;
+            let countred = 0, countgray = 0;
 
-        if (win) {
-            winsound.play();
-        } else {
+            
             innerCells.forEach(cell => {
                 const catmid = cell.firstChild;
-                if (catmid) {
+                if (catmid && catmid.classList.contains("cat")) {
+                    //count cats on the board
+                    if (catmid.classList.contains("red")) {countred++};
+                    if (catmid.classList.contains("gray")) {countgray++};
+
+                    //check triplets
                     directions.forEach(dir => {
                         const catone = CellOffset(cell, dir[0]).firstChild;
                         const cattwo = CellOffset(cell, dir[1]).firstChild;
-                        if (catone && cattwo &&
-                            ((catmid.classList.contains("red") && catone.classList.contains("red") && cattwo.classList.contains("red")) ||
-                                (catmid.classList.contains("gray") && catone.classList.contains("gray") && cattwo.classList.contains("gray")))) {
-
-                            [catone, catmid, cattwo].forEach(cat => animateGrow(cat, cat.parentElement, moveToHand));
+                        if (catone && cattwo && catone.classList.contains("cat") && cattwo.classList.contains("cat")) {
+                            if (catmid.classList.contains("red") && catone.classList.contains("red") && cattwo.classList.contains("red")) {
+                                field.classList.add("redwin");
+                                win = true;                        
+                            }
+                            if (catmid.classList.contains("gray") && catone.classList.contains("gray") && cattwo.classList.contains("gray")) {
+                                field.classList.add("graywin");
+                                win = true;                        
+                            }
                         }
                     })
                 }
             })
-        }
-    
-    }, 1000);
 
+            if (countred == b) {
+                field.classList.add("redwin");
+                win = true;    
+            }
+            if (countgray == b) {
+                field.classList.add("graywin");
+                win = true;    
+            }
+
+            if (win) {
+                winsound.play();
+            } else {
+                innerCells.forEach(cell => {
+                    const catmid = cell.firstChild;
+                    if (catmid) {
+                        directions.forEach(dir => {
+                            const catone = CellOffset(cell, dir[0]).firstChild;
+                            const cattwo = CellOffset(cell, dir[1]).firstChild;
+                            if (catone && cattwo &&
+                                ((catmid.classList.contains("red") && catone.classList.contains("red") && cattwo.classList.contains("red")) ||
+                                    (catmid.classList.contains("gray") && catone.classList.contains("gray") && cattwo.classList.contains("gray")))) {
+
+                                [catone, catmid, cattwo].forEach(cat => animateGrow(cat, cat.parentElement, moveToHand));
+                            }
+                        })
+                    }
+                })
+            }
+
+        if (cat.classList.contains('gray')) {
+            switchToRed();
+        } else if (cat.classList.contains('red')) {
+            switchToGray();
+        }
+        
+        }, 1.2 * (JUMP_DURATION + BOUNCE_DURATION) * 1000);
+    }
 }
 
 function initGame() {
@@ -329,7 +348,6 @@ document.getElementById('restartBtn').onclick = ()=>{
 const invBtn = document.getElementById('inviteBtn');
 invBtn.onclick = async ()=>{
     const invURL = window.location.href + "&app=" + APP_ID;
-    console.log(invURL.toString());
 
     navigator.clipboard.writeText(invURL).then(() => {
         invBtn.innerHTML = "✓ link copied";
