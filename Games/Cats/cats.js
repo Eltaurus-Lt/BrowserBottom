@@ -328,14 +328,33 @@ function gameState() {
 function loadGameState(gamestate) {
     console.log(gamestate);
 
-    field.classList = gamestate[0];
-    turnInd.classList = gamestate[1];
+    field.classList.add(...gamestate[0]);
+    turnInd.classList.add(...gamestate[1]);
 
+    cats.forEach(cat => {cat.remove()});
     gamestate.slice(2).forEach((catstate) => {
         
-      });
+        const newCat = document.createElement("div");
+        newCat.id = (catstate[0]);
 
-    //deselect
+        const catCell = document.getElementById(catstate[1]);
+        catCell.appendChild(newCat);        
+
+        newCat.classList.add(...catstate[2]);
+        
+    });
+
+    cats = document.querySelectorAll(".kitten, .cat");
+    cats.forEach((cat, index) => {
+        cat.addEventListener('click', () => selectCat(cat));
+    });
+
+    cells.forEach(cell => {
+        if (!cell.firstChild) {
+            cell.classList.add('free');
+        }
+    });
+
     //recount free hand cells
 }
 
@@ -385,6 +404,7 @@ invBtn.onclick = async ()=>{
 const syncBtn = document.getElementById('syncBtn');
 syncBtn.onclick = async ()=>{
     console.log(gameState());
+    sendGameState(gameState());
 }
 
 const turnInd = document.getElementById('turnindicator');

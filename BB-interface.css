@@ -93,9 +93,18 @@ input {
                 inset 0 0 5px 0px rgb(255, 100, 0),
                 0 0 30px rgba(97, 5, 5, 0.507); */
 }
+#connectionindicator.new {
+    visibility: visible;
+    background-color: rgb(255, 251, 0);
+    box-shadow: 0 0 10px 0px rgb(252, 255, 65),
+                0 0 20px 0px rgb(255, 187, 0),
+                inset 0 0 2px 0px rgb(252, 255, 65),
+                inset 0 0 5px 0px rgb(255, 217, 0),
+                0 0 30px rgba(97, 72, 5, 0.507);
+}
 #connectionindicator.connected {
     visibility: visible;
-    background-color: green;
+    background-color: rgb(0, 168, 0);
     box-shadow: 0 0 10px 0px rgb(172, 252, 25),
                 0 0 20px 0px rgb(9, 255, 0),
                 inset 0 0 2px 0px rgb(172, 252, 25),

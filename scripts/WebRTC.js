@@ -96,7 +96,7 @@ async function createPeerConnection(toPlayer) {
         
         if (cind) {
             if (state === 'new') {
-
+                cind.classList = ['new'];
             } else if (state === 'connecting') {
 
             } else if (state === 'connected') {
