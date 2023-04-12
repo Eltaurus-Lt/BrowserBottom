@@ -82,19 +82,21 @@ async function createPeerConnection(toPlayer) {
 
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
-            //console.log("New ICE candidate:", event.candidate);
+            console.log("New ICE candidate:", event.candidate);
             signalToPeer({'type': "candidate", 'content': event.candidate}, toPlayer);
         }
     };
 
     //data
     peerConnection.ondatachannel = async (event) => {
+        console.log('data channel caught🎈');
         event.channel.onmessage = message => {
             triggerEvent('RTCmessage', JSON.parse(message.data));
         };
     };
 
     dataChannel = peerConnection.createDataChannel('GameData');
+    console.log('🎈data channel created');
 }
 
 async function createOffer(toPlayer) {
@@ -103,9 +105,11 @@ async function createOffer(toPlayer) {
     await peerConnection.setLocalDescription(offer);
 
     signalToPeer({'type': "offer", 'content': offer }, toPlayer);
+    console.log('🧵offer sent');
 }
 
 catchEvent('createAnswer', async data => {
+    console.log('offer received🧵');
     await createPeerConnection(data.toPlayer);
     await peerConnection.setRemoteDescription(data.offer);
 
@@ -113,9 +117,12 @@ catchEvent('createAnswer', async data => {
     await peerConnection.setLocalDescription(answer);
 
     signalToPeer({ 'type': "answer", 'content': answer }, data.toPlayer);
+    console.log('🎍answer sent');
 });
 
 catchEvent('addAnswer', data => {
+    console.log('answer received🎍');
+    console.log('connection state: ', peerConnection.connectionState);
     if (!peerConnection.currentRemoteDescription) {
         peerConnection.setRemoteDescription(data.answer);
     }
@@ -134,8 +141,16 @@ catchEvent('playerJoined', async data => {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //RTC-Client
-function sendGameState() {
-
+function sendGameState(gamestate) {
+    if (peerConnection && dataChannel) {
+        dataChannel.send(JSON.stringify({
+          type: "gameState",
+          value: gamestate,
+          player: CurrentPlayer
+        }));
+    } else {
+        console.log("Connection error: no peerConnection or dataChannel");
+    }
 }
 
 function sendGameData(type, value) {
@@ -153,9 +168,9 @@ function sendGameData(type, value) {
 
 catchEvent('RTCmessage', data => {
     if (data.type === 'gameState') {
-        triggerEvent('receiveGameState', data);
+        triggerEvent('receiveGameState', data.value);
     } else if (data.type === 'chatMessage') {
-        triggerEvent('receiveChatMessage', data);
+        triggerEvent('receiveChatMessage', data.value);
     } else {
         triggerEvent('receiveGameData', data);
     }

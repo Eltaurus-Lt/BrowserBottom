@@ -2,7 +2,7 @@ const JUMP_DURATION = 0.5;
 const BOUNCE_DURATION = 0.35;
 const RETURN_DELAY = 0.5;
 const RETURN_DURATION = 0.5;
-const GROW_DELAY = 0.5;
+const GROW_DELAY = 0.15;
 const GROW_DURATION = 0.5;
 
 function selectCat(cat) {
@@ -25,9 +25,12 @@ function deselectCat() {
     }
 }
 
+function edgeCell (cell) {
+    return (cell.classList.contains('top') || cell.classList.contains('bottom') || cell.classList.contains('left') || cell.classList.contains('right'));
+}
+
 function moveToCell(cell) {
-    if (selected && selected.parentNode !== cell && !cell.classList.contains('top') &&
-        !cell.classList.contains('bottom') && !cell.classList.contains('left') && !cell.classList.contains('right')) {
+    if (selected && selected.parentNode !== cell && !edgeCell(cell)) {
         sendGameData("movecat", [selected.id, cell.id]);
         moveCat(selected.id, cell.id);
     }
@@ -104,8 +107,7 @@ function moveToHand(cat, cell) {
 
 function returnAllToHands(cat, cell) {
     let i;
-    if (cell.classList.contains('left') || cell.classList.contains('right')  ||
-    cell.classList.contains('top') || cell.classList.contains('bottom')) {
+    if (edgeCell(cell)) {
         moveToHand(cat, cell);
     }
 }
@@ -141,6 +143,7 @@ function moveCat(catID, cellID) {
         cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`;
         animateMovement(cat, cell, (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
 
+//add check for startCell == top, bottom, ...
         if (startCell.classList.contains('boardCell')) {
             if (cat.classList.contains('gray')) {
                 switchToRed();
@@ -217,16 +220,11 @@ function moveCat(catID, cellID) {
             switchToGray();
         }
         
-        }, 1.2 * (JUMP_DURATION + BOUNCE_DURATION) * 1000);
+        }, (JUMP_DURATION + BOUNCE_DURATION + GROW_DELAY) * 1000);
     }
 }
 
 function initGame() {
-
-    field = document.getElementById("field");
-    board = document.getElementById("board");
-    grayHand = document.getElementById("GrayHand");
-    redHand = document.getElementById("RedHand");
 
     grayCells = [];
     redCells = [];
@@ -276,8 +274,8 @@ function initGame() {
     innerCells = document.querySelectorAll(".innerCell");
 
 
-    counters = document.querySelectorAll(".kitten, .cat");
-    counters.forEach((cat, index) => {
+    cats = document.querySelectorAll(".kitten, .cat");
+    cats.forEach((cat, index) => {
         cat.addEventListener('click', () => selectCat(cat));
     });
 
@@ -319,12 +317,42 @@ function endRedTurn() {
     switchToGray();
 }
 
+function gameState() {
+    let gamestate = [];
+    gamestate.push(Array.from(field.classList));
+    gamestate.push(Array.from(turnInd.classList));
+    cats.forEach((cat) => {gamestate.push([cat.id, cat.parentElement.id, Array.from(cat.classList)])});
+    return gamestate;
+}
+
+function loadGameState(gamestate) {
+    console.log(gamestate);
+
+    field.classList = gamestate[0];
+    turnInd.classList = gamestate[1];
+
+    gamestate.slice(2).forEach((catstate) => {
+        
+      });
+
+    //deselect
+    //recount free hand cells
+}
+
 const a = 6; //board size
 const b = 8; //hand size
 const directions = [[[-1,-1],[1,1]], [[-1,0],[1,0]], [[-1,1],[1,-1]], [[0,-1],[0,1]]];
-let selected, field, board, cells, innerCells, counters, grayHand, redHand, grayCells, redCells;
+const field = document.getElementById("field");
+const board = document.getElementById("board");
+const grayHand = document.getElementById("GrayHand");
+const redHand = document.getElementById("RedHand");
+let selected, cells, innerCells, cats, grayCells, redCells;
 var winsound = new Audio('sounds/Party Horn.mp3');
 initGame();
+
+catchEvent('receiveGameState', gamestate => {
+    loadGameState(gamestate);
+});
 
 catchEvent('receiveGameData', data => {
     if (data.type === 'movecat') {
@@ -352,6 +380,11 @@ invBtn.onclick = async ()=>{
     navigator.clipboard.writeText(invURL).then(() => {
         invBtn.innerHTML = "✓ link copied";
   })
+}
+
+const syncBtn = document.getElementById('syncBtn');
+syncBtn.onclick = async ()=>{
+    console.log(gameState());
 }
 
 const turnInd = document.getElementById('turnindicator');
