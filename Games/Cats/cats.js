@@ -149,8 +149,7 @@ function moveCat(catID, cellID) {
         cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`;
         animateMovement(cat, cell, (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
 
-//add check for startCell == top, bottom, ...
-        if (startCell.classList.contains('boardCell')) {
+        if (startCell.classList.contains('boardCell') && !edgeCell(startCell)) {
             if (cat.classList.contains('gray')) {
                 switchToRed();
             } else if (cat.classList.contains('red')) {
@@ -384,14 +383,16 @@ var stateLog = [];
 initGame();
 
 catchEvent('receiveGameState', gamestate => {
-    if (undoBtn) {
-        const prevstate = stateLog.pop();
-// do not compare .selected class        
-        if (prevstate != gamestate) {stateLog = []};
-        undoBtn.classList.add('inactive');
-    }
+    if (gamestate!==gameState()) {
+        if (undoBtn) {
+            const prevstate = stateLog.pop();
+    // do not compare .selected class        
+            if (prevstate != gamestate) {stateLog = []};
+            undoBtn.classList.add('inactive');
+        }
 
-    loadGameState(gamestate);
+        loadGameState(gamestate);
+    }
 });
 
 catchEvent('receiveGameData', data => {
