@@ -81,6 +81,7 @@ catchEvent('signalFromPeer', data => {
     }
 
     if (data.type === 'candidate') {
+        //console.log('ice candidate signal received');
         triggerEvent('icecandidate', { 'candidate': data.content });
     }
 

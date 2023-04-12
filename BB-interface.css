@@ -83,13 +83,7 @@ input {
     width: 10px;
     aspect-ratio: 1;
     border-radius: 50%;
-
-    background-color: #ff1a1a; 
-    box-shadow: 0 0 5px 0px rgba(255, 26, 26, 0.5), 
-                0 0 10px 0px rgba(255, 26, 26, 0.4), 
-                0 0 20px 0px rgba(255, 26, 26, 0.3), 
-                0 0 30px 0px rgba(255, 26, 26, 0.2), 
-                0 0 40px 0px rgba(255, 26, 26, 0.1);
+    visibility: hidden;
 
     /* background-color: rgb(255, 38, 0);
 
@@ -100,12 +94,22 @@ input {
                 0 0 30px rgba(97, 5, 5, 0.507); */
 }
 #connectionindicator.connected {
+    visibility: visible;
     background-color: green;
     box-shadow: 0 0 10px 0px rgb(172, 252, 25),
                 0 0 20px 0px rgb(9, 255, 0),
                 inset 0 0 2px 0px rgb(172, 252, 25),
                 inset 0 0 5px 0px rgb(9, 255, 0),
                 0 0 30px rgba(5, 97, 74, 0.507);
+}
+#connectionindicator.failed {
+    visibility: visible;
+    background-color: #ff1a1a; 
+    box-shadow: 0 0 5px 0px rgba(255, 26, 26, 0.5), 
+                0 0 10px 0px rgba(255, 26, 26, 0.4), 
+                0 0 20px 0px rgba(255, 26, 26, 0.3), 
+                0 0 30px 0px rgba(255, 26, 26, 0.2), 
+                0 0 40px 0px rgba(255, 26, 26, 0.1);
 }
 
 button {

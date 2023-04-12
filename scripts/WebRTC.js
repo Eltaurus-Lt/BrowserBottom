@@ -82,21 +82,41 @@ async function createPeerConnection(toPlayer) {
 
     peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
-            console.log("New ICE candidate:", event.candidate);
+            console.log('ice candidate signal received 💎', event.candidate);
             signalToPeer({'type': "candidate", 'content': event.candidate}, toPlayer);
         }
     };
 
+    //indicator
+    peerConnection.onconnectionstatechange = () => {
+        const state = peerConnection.connectionState;
+        console.log('Connection state changed to: ', state);
+
+        const cind = document.getElementById('connectionindicator');
+        
+        if (cind) {
+            if (state === 'new') {
+
+            } else if (state === 'connecting') {
+
+            } else if (state === 'connected') {
+                cind.classList = ['connected'];
+            } else {
+                cind.classList = ['failed'];
+            }
+        };
+    }
+
     //data
     peerConnection.ondatachannel = async (event) => {
-        console.log('data channel caught🎈');
+        //console.log('data channel caught');
         event.channel.onmessage = message => {
             triggerEvent('RTCmessage', JSON.parse(message.data));
         };
     };
 
     dataChannel = peerConnection.createDataChannel('GameData');
-    console.log('🎈data channel created');
+    //console.log('data channel created');
 }
 
 async function createOffer(toPlayer) {
@@ -105,11 +125,11 @@ async function createOffer(toPlayer) {
     await peerConnection.setLocalDescription(offer);
 
     signalToPeer({'type': "offer", 'content': offer }, toPlayer);
-    console.log('🧵offer sent');
+    //console.log('offer sent');
 }
 
 catchEvent('createAnswer', async data => {
-    console.log('offer received🧵');
+    //console.log('offer received');
     await createPeerConnection(data.toPlayer);
     await peerConnection.setRemoteDescription(data.offer);
 
@@ -117,12 +137,11 @@ catchEvent('createAnswer', async data => {
     await peerConnection.setLocalDescription(answer);
 
     signalToPeer({ 'type': "answer", 'content': answer }, data.toPlayer);
-    console.log('🎍answer sent');
+    //console.log('answer sent');
 });
 
 catchEvent('addAnswer', data => {
-    console.log('answer received🎍');
-    console.log('connection state: ', peerConnection.connectionState);
+    //console.log('answer received');
     if (!peerConnection.currentRemoteDescription) {
         peerConnection.setRemoteDescription(data.answer);
     }
