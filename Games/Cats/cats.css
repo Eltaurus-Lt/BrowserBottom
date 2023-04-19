@@ -170,6 +170,7 @@ body {
     background-repeat: no-repeat;
     box-sizing: border-box;
    /* background-origin: content-box; */
+   position: relative;
 }
 
 .cat {

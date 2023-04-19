@@ -1,9 +1,13 @@
-const JUMP_DURATION = 0.5;
-const BOUNCE_DURATION = 0.35;
-const RETURN_DELAY = 0.5;
-const RETURN_DURATION = 0.5;
-const GROW_DELAY = 0.15;
-const GROW_DURATION = 0.5;
+//TODO
+//undo does not reset win condition
+
+const JUMP_DURATION = 0.5; //s
+const BOUNCE_DURATION = 0.35; //s
+const RETURN_DELAY = 0.5; //s
+const RETURN_DURATION = 0.5; //s
+const GROW_DELAY = 0.15; //s
+const GROW_DURATION = 0.5; //s
+const JUMP_HEIGHT = 300; //px
 
 function selectCat(cat) {
     if (!selected || selected !== cat) {
@@ -43,6 +47,8 @@ function animateMovement(cat, cell, motion, aftereffect) {
 
     const startPos = cat.getBoundingClientRect();
     const targetPos = cell.getBoundingClientRect();
+    const dx = targetPos.left - startPos.left;
+    const dy = targetPos.top - startPos.top;
 
     const reparent = () => {
         cell.appendChild(cat);
@@ -60,9 +66,11 @@ function animateMovement(cat, cell, motion, aftereffect) {
 
     if (motion == "jump") {
         const keyframes = [
-            { transform: 'translate(0, 0)', offset: 0 },
-            { transform: 'translate(100px, 100px)', offset: 0.5 },
-            { transform: 'translate(200px, 0)', offset: 1 }
+            { translate: `0`, top: `0`, offset: 0 },
+            { transform: `translateY(0)`, easing: 'cubic-bezier(0.333, 0.667, 0.667, 1)', offset: 0 },
+            { transform: `translateY(${-JUMP_HEIGHT}px)`, easing: 'cubic-bezier(0.333, 0, 0.667, 0.333)', offset: 0.5},
+            { transform: `translateY(0)`, offset: 1 },
+            { translate: `${dx}px ${dy}px`, offset: 1 },
           ];
         const animation = cat.animate(keyframes, {
             duration: JUMP_DURATION * 1000,
@@ -75,7 +83,7 @@ function animateMovement(cat, cell, motion, aftereffect) {
     } else {
 
         cat.addEventListener('transitionend', reparent);
-        cat.style.transform = `translate(${targetPos.left - startPos.left}px, ${targetPos.top - startPos.top}px)`;
+        cat.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 }
 
