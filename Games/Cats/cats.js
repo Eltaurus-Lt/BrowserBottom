@@ -1,9 +1,14 @@
-const JUMP_DURATION = 0.5;
-const BOUNCE_DURATION = 0.35;
-const RETURN_DELAY = 0.5;
-const RETURN_DURATION = 0.5;
-const GROW_DELAY = 0.15;
-const GROW_DURATION = 0.5;
+//TODO
+//undo does not reset win condition
+
+const JUMP_DURATION = 0.5; //s
+const BOUNCE_DURATION = 0.35; //s
+const RETURN_DELAY = 0.5; //s
+const RETURN_DURATION = 0.5; //s
+const GROW_DELAY = 0.15; //s
+const GROW_DURATION = 0.5; //s
+const JUMP_HEIGHT = 20; //vh
+const JUMP_PRE = 2; //vh
 
 function selectCat(cat) {
     if (!selected || selected !== cat) {
@@ -36,28 +41,52 @@ function moveToCell(cell) {
     }
 }
 
-function animateMovement(cat, cell, aftereffect) {
+function animateMovement(cat, cell, motion, aftereffect) {
     const startCell = cat.parentElement;
     if (startCell.classList.contains('catBox')) {startCell.classList.add('free')};
     cell.classList.remove('free');
 
     const startPos = cat.getBoundingClientRect();
     const targetPos = cell.getBoundingClientRect();
+    const dx = targetPos.left - startPos.left;
+    const dy = targetPos.top - startPos.top;
 
     const reparent = () => {
         cell.appendChild(cat);
-        cat.style.left = "0";
-        cat.style.right = "0";
-        cat.style.transform = "";
+        cat.style.zIndex = '0';
+        cat.style.transform = '';
 
         if (aftereffect) {
             aftereffect(cat, cell);
         }
 
         cat.removeEventListener('transitionend', reparent);
+        cat.removeEventListener('finish', reparent);
     };
-    cat.addEventListener('transitionend', reparent);
-    cat.style.transform = `translate(${targetPos.left - startPos.left}px, ${targetPos.top - startPos.top}px)`;
+
+    if (motion == "jump") {
+        cat.style.zIndex = '1';
+        const keyframes = [
+            { transform: `translateY(0)`, offset: 0 },
+            { translate: `0`, offset: 0.1 },
+            { transform: `translateY(${JUMP_PRE}vh)`, easing: 'cubic-bezier(0.333, 0.667, 0.667, 1)', offset: 0.1 },
+            { transform: `translateY(${-JUMP_HEIGHT}vh)`, easing: 'cubic-bezier(0.333, 0, 0.667, 0.333)', offset: 0.5},
+            { transform: `translateY(0)`, offset: 1 },
+            { translate: `${dx}px ${dy}px`, offset: 1},
+          ];
+        const animation = cat.animate(keyframes, {
+            duration: JUMP_DURATION * 1000,
+            easing: 'linear'
+        });
+
+        animation.addEventListener('finish', reparent);
+        animation.play();
+
+    } else {
+
+        cat.addEventListener('transitionend', reparent);
+        cat.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
 }
 
 function animateGrow(cat, cell, aftereffect) {
@@ -121,7 +150,7 @@ function repel(cat, cell) {
                 const offCell2 = CellOffset(offCell, dir);
                 if (boopedCat && (boopedCat!==cat) && (cat.classList.contains("cat") || boopedCat.classList.contains("kitten")) && offCell2 && (!offCell2.firstChild)) {
                     boopedCat.style.transition = `transform ${BOUNCE_DURATION}s ease-out`; 
-                    animateMovement(boopedCat, offCell2, returnAllToHands);
+                    animateMovement(boopedCat, offCell2, "", returnAllToHands);
                 }
             }
         })
@@ -147,7 +176,7 @@ function moveCat(catID, cellID) {
 
     if (cell.classList.contains('catBox')) {
         cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`;
-        animateMovement(cat, cell, (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
+        animateMovement(cat, cell, "", (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
 
         if (startCell.classList.contains('boardCell') && !edgeCell(startCell)) {
             if (cat.classList.contains('gray')) {
@@ -157,8 +186,7 @@ function moveCat(catID, cellID) {
             }
         }
     } else {
-        cat.style.transition = `transform ${JUMP_DURATION}s ease-in`;
-        animateMovement(cat, cell, repel);
+        animateMovement(cat, cell, "jump", repel);
     
         setTimeout(() => {
             let win = false;

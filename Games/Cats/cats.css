@@ -133,6 +133,7 @@ body {
     height: 50%;
 
     /* background: coral; */
+    z-index: 1;
     
     display: flex;
     flex-wrap: wrap;
@@ -170,6 +171,7 @@ body {
     background-repeat: no-repeat;
     box-sizing: border-box;
    /* background-origin: content-box; */
+   position: relative;
 }
 
 .cat {
