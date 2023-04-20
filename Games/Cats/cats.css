@@ -153,6 +153,8 @@ body {
     aspect-ratio: 1;
     background: #09c1;
 
+    z-index: 0;
+
     transition: box-shadow .15s;
 }
 #GrayHand .catBox {
