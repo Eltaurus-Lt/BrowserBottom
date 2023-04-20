@@ -7,7 +7,8 @@ const RETURN_DELAY = 0.5; //s
 const RETURN_DURATION = 0.5; //s
 const GROW_DELAY = 0.15; //s
 const GROW_DURATION = 0.5; //s
-const JUMP_V2g = 42; //vh
+//const JUMP_V2g = 42; //vh
+const JUMP_PARAM = 110; //vh
 const JUMP_PRE = 2; //vh
 
 function selectCat(cat) {
@@ -71,7 +72,7 @@ function animateMovement(cat, cell, motion, aftereffect) {
     if (motion == "jump") {
 
         const L = Math.sqrt(dx*dx + dy*dy) / vh2pix;
-        const JUMP_HEIGHT = (JUMP_V2g + Math.sqrt(Math.max(0, JUMP_V2g*JUMP_V2g - L*L))) /2;
+        const JUMP_HEIGHT = Math.sqrt(Math.max(0, JUMP_PARAM*JUMP_PARAM - L*L))/ 4; //(JUMP_V2g + Math.sqrt(Math.max(0, JUMP_V2g*JUMP_V2g - L*L))) /2;
 
         const keyframes = [
             { transform: `translateY(0)`, offset: 0 },
