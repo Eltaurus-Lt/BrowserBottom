@@ -7,7 +7,8 @@ const RETURN_DELAY = 0.5; //s
 const RETURN_DURATION = 0.5; //s
 const GROW_DELAY = 0.15; //s
 const GROW_DURATION = 0.5; //s
-const JUMP_HEIGHT = 300; //px
+const JUMP_HEIGHT = 20; //vh
+const JUMP_PRE = 2; //vh
 
 function selectCat(cat) {
     if (!selected || selected !== cat) {
@@ -52,9 +53,8 @@ function animateMovement(cat, cell, motion, aftereffect) {
 
     const reparent = () => {
         cell.appendChild(cat);
-        //cat.style.left = "0";
-        //cat.style.right = "0";
-        cat.style.transform = "";
+        cat.style.zIndex = '0';
+        cat.style.transform = '';
 
         if (aftereffect) {
             aftereffect(cat, cell);
@@ -65,12 +65,14 @@ function animateMovement(cat, cell, motion, aftereffect) {
     };
 
     if (motion == "jump") {
+        cat.style.zIndex = '1';
         const keyframes = [
-            { translate: `0`, top: `0`, offset: 0 },
-            { transform: `translateY(0)`, easing: 'cubic-bezier(0.333, 0.667, 0.667, 1)', offset: 0 },
-            { transform: `translateY(${-JUMP_HEIGHT}px)`, easing: 'cubic-bezier(0.333, 0, 0.667, 0.333)', offset: 0.5},
+            { transform: `translateY(0)`, offset: 0 },
+            { translate: `0`, offset: 0.1 },
+            { transform: `translateY(${JUMP_PRE}vh)`, easing: 'cubic-bezier(0.333, 0.667, 0.667, 1)', offset: 0.1 },
+            { transform: `translateY(${-JUMP_HEIGHT}vh)`, easing: 'cubic-bezier(0.333, 0, 0.667, 0.333)', offset: 0.5},
             { transform: `translateY(0)`, offset: 1 },
-            { translate: `${dx}px ${dy}px`, offset: 1 },
+            { translate: `${dx}px ${dy}px`, offset: 1},
           ];
         const animation = cat.animate(keyframes, {
             duration: JUMP_DURATION * 1000,
