@@ -87,9 +87,9 @@ function animateMovement(cat, cell, motion, aftereffect) {
             { translate: `${dx}px ${dy}px`, offset: 1},
           ];
 
-    } else if (motion =="return") {
+    } else if (motion =="return" && startCell.classList.contains('boardCell') && !edgeCell(startCell)) {
         //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
-        duration = RETURN_DURATION;
+        duration = 1.5*RETURN_DURATION;
         keyframes = [
             { translate: `0`, offset: 0, easing: 'cubic-bezier(0.5, 0, .5, 1)' },
             { transform: `translateY(0)`, offset: 0, easing: 'cubic-bezier(0, .35, .65, 1)' },
@@ -103,13 +103,13 @@ function animateMovement(cat, cell, motion, aftereffect) {
             { translate: `${dx}px ${dy}px`, offset: 1},
           ];
 
-    // } else if (motion =="return") {
-    //     //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
-    //     duration = RETURN_DURATION;
-    //     keyframes = [
-    //         { translate: `0`, offset: 0, easing: 'ease-in-out' },
-    //         { translate: `${dx}px ${dy}px`, offset: 1},
-    //      ];      
+    } else if (motion =="return") {
+        //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
+        duration = RETURN_DURATION;
+        keyframes = [
+            { translate: `0`, offset: 0, easing: 'ease-in-out' },
+            { translate: `${dx}px ${dy}px`, offset: 1},
+         ];      
 
     } else if (motion =="bounce") {
         //boopedCat.style.transition = `transform ${BOUNCE_DURATION}s ease-out`; 
