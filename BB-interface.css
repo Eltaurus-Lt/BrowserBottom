@@ -133,6 +133,7 @@ button {
     border: 1px solid var(--col-accent-light);
     border-radius: .25em;
     cursor: pointer;
+    z-index: 10;
 }
 button:not(.inactive):active {
     padding-top: calc(.25em + 1px);

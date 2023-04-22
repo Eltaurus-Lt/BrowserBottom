@@ -63,18 +63,21 @@ function animateMovement(cat, cell, motion, aftereffect) {
             aftereffect(cat, cell);
         }
 
-        cat.removeEventListener('transitionend', reparent);
+      //  cat.removeEventListener('transitionend', reparent);
         cat.removeEventListener('finish', reparent);
     };
 
     cat.style.zIndex = '1';
+
+    let keyframes, duration;
 
     if (motion == "jump") {
 
         const L = Math.sqrt(dx*dx + dy*dy) / vh2pix;
         const JUMP_HEIGHT = Math.sqrt(Math.max(0, JUMP_PARAM*JUMP_PARAM - L*L))/ 4; //(JUMP_V2g + Math.sqrt(Math.max(0, JUMP_V2g*JUMP_V2g - L*L))) /2;
 
-        const keyframes = [
+        duration = JUMP_DURATION;
+        keyframes = [
             { transform: `translateY(0)`, offset: 0 },
             { translate: `0`, offset: 0.1 },
             { transform: `translateY(${JUMP_PRE}vh)`, easing: 'cubic-bezier(0.333, 0.667, 0.667, 1)', offset: 0.1 },
@@ -82,19 +85,55 @@ function animateMovement(cat, cell, motion, aftereffect) {
             { transform: `translateY(0)`, offset: 1 },
             { translate: `${dx}px ${dy}px`, offset: 1},
           ];
-        const animation = cat.animate(keyframes, {
-            duration: JUMP_DURATION * 1000,
-            easing: 'linear'
-        });
 
-        animation.addEventListener('finish', reparent);
-        animation.play();
+    } else if (motion =="return") {
+        //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
+        duration = RETURN_DURATION;
+        keyframes = [
+            { translate: `0`, offset: 0, easing: 'cubic-bezier(0.5, 0, .5, 1)' },
+            { transform: `translateY(0)`, offset: 0, easing: 'cubic-bezier(0, .35, .65, 1)' },
+                { rotate: `0`, offset: 0, easing: 'ease-out' },
+                { rotate: `${10 * Math.sign(dx)}deg`, offset: 0.15, easing: 'ease-in-out' },
+            { transform: `translateY(-5vh)`, offset: 0.25},
+                { rotate: `${-10 * Math.sign(dx)}deg`, offset: 0.65, easing: 'ease-in-out' },
+            { transform: `translateY(-5vh)`, offset: 0.75, easing: 'cubic-bezier(.35, 0, 1, 0.95)' },
+                { rotate: `0`, offset: 0.95},
+            { transform: `translateY(0) rotate(0)`, offset: 1 },
+            { translate: `${dx}px ${dy}px`, offset: 1},
+          ];
+
+    // } else if (motion =="return") {
+    //     //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
+    //     duration = RETURN_DURATION;
+    //     keyframes = [
+    //         { translate: `0`, offset: 0, easing: 'ease-in-out' },
+    //         { translate: `${dx}px ${dy}px`, offset: 1},
+    //      ];      
+
+    } else if (motion =="bounce") {
+        //boopedCat.style.transition = `transform ${BOUNCE_DURATION}s ease-out`; 
+        duration = BOUNCE_DURATION;
+        keyframes = [
+            { translate: `0`, offset: 0, easing: 'ease-out' },
+            { translate: `${dx}px ${dy}px`, offset: 1},
+          ];
 
     } else {
+        duration = 1;
+        keyframes = [
+            { translate: `0`, offset: 0 },
+            { translate: `${dx}px ${dy}px`, offset: 1},
+          ];
 
-        cat.addEventListener('transitionend', reparent);
-        cat.style.transform = `translate(${dx}px, ${dy}px)`;
     }
+
+    const animation = cat.animate(keyframes, {
+        duration: duration * 1000,
+        easing: 'linear'
+    });
+
+    animation.addEventListener('finish', reparent);
+    animation.play();
 }
 
 function animateGrow(cat, cell, aftereffect) {
@@ -127,8 +166,8 @@ function moveToHand(cat, cell) {
         i = 0;
         while (i < grayCells.length && !grayCells[i].classList.contains('free')) {i++};
         if (i < grayCells.length) {
-            cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
-            animateMovement(cat, grayCells[i]);
+            //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
+            animateMovement(cat, grayCells[i], "return");
         }
     }
 
@@ -136,8 +175,8 @@ function moveToHand(cat, cell) {
         i = 0;
         while (i < redCells.length && !redCells[i].classList.contains('free')) {i++};
         if (i < redCells.length) {
-            cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
-            animateMovement(cat, redCells[i]);
+            //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`; 
+            animateMovement(cat, redCells[i], "return");
         }
     }
 }
@@ -157,8 +196,8 @@ function repel(cat, cell) {
                 const boopedCat = offCell.firstChild;
                 const offCell2 = CellOffset(offCell, dir);
                 if (boopedCat && (boopedCat!==cat) && (cat.classList.contains("cat") || boopedCat.classList.contains("kitten")) && offCell2 && (!offCell2.firstChild)) {
-                    boopedCat.style.transition = `transform ${BOUNCE_DURATION}s ease-out`; 
-                    animateMovement(boopedCat, offCell2, "", returnAllToHands);
+                    //boopedCat.style.transition = `transform ${BOUNCE_DURATION}s ease-out`; 
+                    animateMovement(boopedCat, offCell2, "bounce", returnAllToHands);
                 }
             }
         })
@@ -183,8 +222,8 @@ function moveCat(catID, cellID) {
     const startCell = cat.parentElement;
 
     if (cell.classList.contains('catBox')) {
-        cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`;
-        animateMovement(cat, cell, "", (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
+        //cat.style.transition = `transform ${RETURN_DURATION}s ease-in-out`;
+        animateMovement(cat, cell, "return", (startCell.classList.contains('boardCell')) ? animateGrow : undefined);
 
         if (startCell.classList.contains('boardCell') && !edgeCell(startCell)) {
             if (cat.classList.contains('gray')) {
