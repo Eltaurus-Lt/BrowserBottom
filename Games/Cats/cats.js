@@ -6,6 +6,7 @@ const BOUNCE_DURATION = 0.35; //s
 const RETURN_DELAY = 0.5; //s
 const RETURN_DURATION = 0.5; //s
 const GROW_DELAY = 0.15; //s
+const GROW_SPACING = 0.15; //s
 const GROW_DURATION = 0.5; //s
 //const JUMP_V2g = 42; //vh
 const JUMP_PARAM = 110; //vh
@@ -287,7 +288,9 @@ function moveCat(catID, cellID) {
                                 ((catmid.classList.contains("red") && catone.classList.contains("red") && cattwo.classList.contains("red")) ||
                                     (catmid.classList.contains("gray") && catone.classList.contains("gray") && cattwo.classList.contains("gray")))) {
 
-                                [catone, catmid, cattwo].forEach(cat => animateGrow(cat, cat.parentElement, moveToHand));
+                                [catone, catmid, cattwo].forEach((cat, index) => setTimeout(() => {
+                                    animateGrow(cat, cat.parentElement, moveToHand);
+                                }, index * GROW_SPACING * 1000));
                             }
                         })
                     }
